@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "baseUrl": ".",
+    "paths": {
+      // Project-internal absolute imports (used throughout codebase)
+      "src/*": ["./src/*"],
+
+      // Stubs for Anthropic-internal packages not available on public npm
+      "@ant/claude-for-chrome-mcp": ["./stubs/@ant/claude-for-chrome-mcp/index.ts"],
+      "@ant/computer-use-mcp": ["./stubs/@ant/computer-use-mcp/index.ts"],
+      "@ant/computer-use-mcp/types": ["./stubs/@ant/computer-use-mcp/types.ts"],
+      "@ant/computer-use-mcp/sentinelApps": ["./stubs/@ant/computer-use-mcp/sentinelApps.ts"],
+      "@ant/computer-use-input": ["./stubs/@ant/computer-use-input/index.ts"],
+      "@ant/computer-use-swift": ["./stubs/@ant/computer-use-swift/index.ts"],
+      "@anthropic-ai/claude-agent-sdk": ["./stubs/@anthropic-ai/claude-agent-sdk/index.ts"],
+      "@anthropic-ai/mcpb": ["./stubs/@anthropic-ai/mcpb/index.ts"],
+      "@anthropic-ai/sandbox-runtime": ["./stubs/@anthropic-ai/sandbox-runtime/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "stubs/**/*", "build.ts"],
+  "exclude": ["node_modules", "package"]
+}

@@ -1756,3 +1756,19 @@ export function setPromptId(id: string | null): void {
   STATE.promptId = id
 }
 
+export function isReplBridgeActive(): boolean {
+  return (STATE as Record<string, unknown>)['replBridgeActive'] as boolean ?? false
+}
+
+export function setReplBridgeActive(active: boolean): void {
+  ;(STATE as Record<string, unknown>)['replBridgeActive'] = active
+}
+
+export function getReplBridgeHandle(): unknown {
+  return (STATE as Record<string, unknown>)['replBridgeHandle'] ?? null
+}
+
+export function setReplBridgeHandle(handle: unknown): void {
+  ;(STATE as Record<string, unknown>)['replBridgeHandle'] = handle
+}
+

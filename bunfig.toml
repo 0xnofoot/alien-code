@@ -1,0 +1,17 @@
+# Bun configuration for Claude Code
+
+[install]
+exact = false
+dev = true
+
+[install.scopes]
+# Redirect internal Anthropic packages to local stubs
+# (these are not available on public npm)
+# Uncomment and configure if you have access to internal registry:
+# "@ant" = { token = "$ANT_NPM_TOKEN", url = "https://npm.internal.ant.dev/" }
+
+[bundle]
+# Bun reads tsconfig.json paths automatically for bundling.
+# The tsconfig.json paths field handles both:
+#   - src/* → ./src/* (project-internal absolute imports)
+#   - @ant/* → ./stubs/@ant/* (internal package stubs)
