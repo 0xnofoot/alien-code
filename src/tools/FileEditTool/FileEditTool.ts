@@ -29,7 +29,6 @@ import {
   fileHistoryEnabled,
   fileHistoryTrackEdit,
 } from '../../utils/fileHistory.js'
-import { logFileOperation } from '../../utils/fileOperationAnalytics.js'
 import {
   type LineEndingType,
   readFileSyncWithMetadata,
@@ -529,11 +528,6 @@ export const FileEditTool = buildTool({
     }
     countLinesChanged(patch)
 
-    logFileOperation({
-      operation: 'edit',
-      tool: 'FileEditTool',
-      filePath: absoluteFilePath,
-    })
 
 
     let gitDiff: ToolUseDiff | undefined
