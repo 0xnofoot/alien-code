@@ -76,15 +76,4 @@ export async function logPermissionContextForAnts(
     return
   }
 
-  void logEvent('tengu_internal_record_permission_context', {
-    moment:
-      moment as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    namespace:
-      (await getKubernetesNamespace()) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    toolPermissionContext: jsonStringify(
-      toolPermissionContext,
-    ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    containerId:
-      (await getContainerId()) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 }

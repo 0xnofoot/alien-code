@@ -19,7 +19,6 @@ export function resetProToOpusDefault(): void {
       ...current,
       opusProMigrationComplete: true,
     }))
-    logEvent('tengu_reset_pro_to_opus_default', { skipped: true })
     return
   }
 
@@ -33,19 +32,11 @@ export function resetProToOpusDefault(): void {
       opusProMigrationComplete: true,
       opusProMigrationTimestamp,
     }))
-    logEvent('tengu_reset_pro_to_opus_default', {
-      skipped: false,
-      had_custom_model: false,
-    })
   } else {
     // User has a custom model setting, just mark migration complete
     saveGlobalConfig(current => ({
       ...current,
       opusProMigrationComplete: true,
     }))
-    logEvent('tengu_reset_pro_to_opus_default', {
-      skipped: false,
-      had_custom_model: true,
-    })
   }
 }

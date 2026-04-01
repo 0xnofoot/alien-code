@@ -31,10 +31,7 @@ export function getMaxMcpOutputTokens(): number {
       return parsed
     }
   }
-  const overrides = getFeatureValue_CACHED_MAY_BE_STALE<Record<
-    string,
-    number
-  > | null>('tengu_satin_quoll', {})
+  const overrides = {}
   const override = overrides?.['mcp_tool']
   if (
     typeof override === 'number' &&

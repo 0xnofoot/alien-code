@@ -42,10 +42,7 @@ export function isPidBasedLockingEnabled(): boolean {
     return false
   }
   // GrowthBook controls gradual rollout (returns false for external users)
-  return getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_pid_based_version_locking',
-    false,
-  )
+  return false
 }
 
 /**

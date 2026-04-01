@@ -81,7 +81,6 @@ export function OAuthFlowStep({
       }
 
       // Track which path the user is taking (manual code entry)
-      logEvent('tengu_oauth_manual_entry', {});
       oauthService.handleManualAuthCodeInput({
         authorizationCode,
         state
@@ -148,9 +147,6 @@ export function OAuthFlowStep({
         } // Allow retry by starting fresh OAuth flow
       });
       logError(err_0);
-      logEvent('tengu_oauth_error', {
-        error: errorMessage as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
     }
   }, [oauthService, onSuccess]);
   useEffect(() => {

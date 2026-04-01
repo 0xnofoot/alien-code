@@ -91,11 +91,7 @@ export function isBriefEntitled(): boolean {
   return feature('KAIROS') || feature('KAIROS_BRIEF')
     ? getKairosActive() ||
         isEnvTruthy(process.env.CLAUDE_CODE_BRIEF) ||
-        getFeatureValue_CACHED_WITH_REFRESH(
-          'tengu_kairos_brief',
-          false,
-          KAIROS_BRIEF_REFRESH_MS,
-        )
+        false
     : false
 }
 
@@ -185,10 +181,6 @@ export const BriefTool = buildTool({
   renderToolResultMessage,
   async call({ message, attachments, status }, context) {
     const sentAt = new Date().toISOString()
-    logEvent('tengu_brief_send', {
-      proactive: status === 'proactive',
-      attachment_count: attachments?.length ?? 0,
-    })
     if (!attachments || attachments.length === 0) {
       return { data: { message, sentAt } }
     }

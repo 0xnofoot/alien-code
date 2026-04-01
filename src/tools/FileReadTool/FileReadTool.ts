@@ -37,7 +37,6 @@ import {
   getFileModificationTimeAsync,
   suggestPathUnderCwd,
 } from '../../utils/file.js'
-import { logFileOperation } from '../../utils/fileOperationAnalytics.js'
 import { formatFileSize } from '../../utils/format.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
 import {
@@ -509,10 +508,6 @@ export const FileReadTool = buildTool({
     // Telemetry: track when callers override default read limits.
     // Only fires on override (low volume) — event count = override frequency.
     if (fileReadingLimits !== undefined) {
-      logEvent('tengu_file_read_limits_override', {
-        hasMaxTokens: fileReadingLimits.maxTokens !== undefined,
-        hasMaxSizeBytes: fileReadingLimits.maxSizeBytes !== undefined,
-      })
     }
 
     const ext = path.extname(file_path).toLowerCase().slice(1)
@@ -533,10 +528,7 @@ export const FileReadTool = buildTool({
     // the model externally.
     // 3P default: killswitch off = dedup enabled. Client-side only — no
     // server support needed, safe for Bedrock/Vertex/Foundry.
-    const dedupKillswitch = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_read_dedup_killswitch',
-      false,
-    )
+    const dedupKillswitch = false
     const existingState = dedupKillswitch
       ? undefined
       : readFileState.get(fullFilePath)
@@ -556,9 +548,6 @@ export const FileReadTool = buildTool({
           const mtimeMs = await getFileModificationTimeAsync(fullFilePath)
           if (mtimeMs === existingState.timestamp) {
             const analyticsExt = getFileExtensionForAnalytics(fullFilePath)
-            logEvent('tengu_file_read_dedup', {
-              ...(analyticsExt !== undefined && { ext: analyticsExt }),
-            })
             return {
               data: {
                 type: 'file_unchanged' as const,
@@ -852,12 +841,6 @@ async function callInner(
       file: { filePath: file_path, cells },
     }
 
-    logFileOperation({
-      operation: 'read',
-      tool: 'FileReadTool',
-      filePath: fullFilePath,
-      content: cellsJson,
-    })
 
     return { data }
   }
@@ -869,12 +852,6 @@ async function callInner(
     const data = await readImageWithTokenBudget(resolvedFilePath, maxTokens)
     context.nestedMemoryAttachmentTriggers?.add(fullFilePath)
 
-    logFileOperation({
-      operation: 'read',
-      tool: 'FileReadTool',
-      filePath: fullFilePath,
-      content: data.file.base64,
-    })
 
     const metadataText = data.file.dimensions
       ? createImageMetadataText(data.file.dimensions)
@@ -901,18 +878,6 @@ async function callInner(
       if (!extractResult.success) {
         throw new Error(extractResult.error.message)
       }
-      logEvent('tengu_pdf_page_extraction', {
-        success: true,
-        pageCount: extractResult.data.file.count,
-        fileSize: extractResult.data.file.originalSize,
-        hasPageRange: true,
-      })
-      logFileOperation({
-        operation: 'read',
-        tool: 'FileReadTool',
-        filePath: fullFilePath,
-        content: `PDF pages ${pages}`,
-      })
       const entries = await readdir(extractResult.data.file.outputDir)
       const imageFiles = entries.filter(f => f.endsWith('.jpg')).sort()
       const imageBlocks = await Promise.all(
@@ -962,17 +927,7 @@ async function callInner(
     if (shouldExtractPages) {
       const extractResult = await extractPDFPages(resolvedFilePath)
       if (extractResult.success) {
-        logEvent('tengu_pdf_page_extraction', {
-          success: true,
-          pageCount: extractResult.data.file.count,
-          fileSize: extractResult.data.file.originalSize,
-        })
       } else {
-        logEvent('tengu_pdf_page_extraction', {
-          success: false,
-          available: extractResult.error.reason !== 'unavailable',
-          fileSize: stats.size,
-        })
       }
     }
 
@@ -989,12 +944,6 @@ async function callInner(
       throw new Error(readResult.error.message)
     }
     const pdfData = readResult.data
-    logFileOperation({
-      operation: 'read',
-      tool: 'FileReadTool',
-      filePath: fullFilePath,
-      content: pdfData.file.base64,
-    })
 
     return {
       data: pdfData,
@@ -1057,30 +1006,9 @@ async function callInner(
     memoryFileMtimes.set(data, mtimeMs)
   }
 
-  logFileOperation({
-    operation: 'read',
-    tool: 'FileReadTool',
-    filePath: fullFilePath,
-    content,
-  })
 
   const sessionFileType = detectSessionFileType(fullFilePath)
   const analyticsExt = getFileExtensionForAnalytics(fullFilePath)
-  logEvent('tengu_session_file_read', {
-    totalLines,
-    readLines: lineCount,
-    totalBytes,
-    readBytes,
-    offset,
-    ...(limit !== undefined && { limit }),
-    ...(analyticsExt !== undefined && { ext: analyticsExt }),
-    ...(messageId !== undefined && {
-      messageID:
-        messageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    is_session_memory: sessionFileType === 'session_memory',
-    is_session_transcript: sessionFileType === 'session_transcript',
-  })
 
   return { data }
 }

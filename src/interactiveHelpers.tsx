@@ -147,7 +147,6 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     // Defense for login/logout: clears any prior client so the next init
     // picks up fresh auth headers.
     resetGrowthBook();
-    void initializeGrowthBook();
 
     // Now that trust is established, prefetch system context if it wasn't already
     void getSystemContext();
@@ -194,7 +193,6 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     } = await import('src/components/grove/Grove.js');
     const decision = await showSetupDialog<string>(root, done => <GroveDialog showIfAlreadyViewed={false} location={onboardingShown ? 'onboarding' : 'policy_update_modal'} onDone={done} />);
     if (decision === 'escape') {
-      logEvent('tengu_grove_policy_exited', {});
       gracefulShutdownSync(0);
       return false;
     }
@@ -248,7 +246,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     // initializeGrowthBook promise fired earlier). Also warms the
     // isChannelsEnabled() check in the dev-channels dialog below.
     if (getAllowedChannels().length > 0 || (devChannels?.length ?? 0) > 0) {
-      await checkGate_CACHED_OR_BLOCKING('tengu_harbor');
+      await false;
     }
     if (devChannels && devChannels.length > 0) {
       const [{
@@ -306,7 +304,6 @@ export function getRenderContext(exitOnCtrlC: boolean): {
 
   // Log analytics event when stdin override is active
   if (baseOptions.stdin) {
-    logEvent('tengu_stdin_interactive', {});
   }
   const fpsTracker = new FpsTracker();
   const stats = createStatsStore();
@@ -351,11 +348,6 @@ export function getRenderContext(exitOnCtrlC: boolean): {
           }
           const now = Date.now();
           if (now - lastFlickerTime < 1000) {
-            logEvent('tengu_flicker', {
-              desiredHeight: flicker.desiredHeight,
-              actualHeight: flicker.availableHeight,
-              reason: flicker.reason
-            } as unknown as Record<string, boolean | number | undefined>);
           }
           lastFlickerTime = now;
         }

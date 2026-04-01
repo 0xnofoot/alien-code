@@ -154,10 +154,7 @@ export async function connectVoiceStream(
   // the server's project_bell_v2_config GrowthBook gate). The server
   // side is anthropics/anthropic#278327 + #281372; this lets us ramp
   // clients independently.
-  const isNova3 = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_cobalt_frost',
-    false,
-  )
+  const isNova3 = false
   if (isNova3) {
     params.set('use_conversation_engine', 'true')
     params.set('stt_provider', 'deepgram-nova3')

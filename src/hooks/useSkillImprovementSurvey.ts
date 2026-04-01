@@ -39,14 +39,6 @@ export function useSkillImprovementSurvey(setMessages: SetMessages): {
     setIsOpen(true)
     if (!loggedAppearanceRef.current) {
       loggedAppearanceRef.current = true
-      logEvent('tengu_skill_improvement_survey', {
-        event_type:
-          'appeared' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        // _PROTO_skill_name routes to the privileged skill_name BQ column.
-        // Unredacted names don't go in additional_metadata.
-        _PROTO_skill_name: (suggestion.skillName ??
-          'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      })
     }
   }
 
@@ -57,17 +49,6 @@ export function useSkillImprovementSurvey(setMessages: SetMessages): {
 
       const applied = selected !== 'dismissed'
 
-      logEvent('tengu_skill_improvement_survey', {
-        event_type:
-          'responded' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        response: (applied
-          ? 'applied'
-          : 'dismissed') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        // _PROTO_skill_name routes to the privileged skill_name BQ column.
-        // Unredacted names don't go in additional_metadata.
-        _PROTO_skill_name:
-          current.skillName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      })
 
       if (applied) {
         void applySkillImprovement(current.skillName, current.updates).then(

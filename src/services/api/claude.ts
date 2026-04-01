@@ -303,10 +303,7 @@ export function getExtraBodyParams(betaHeaders?: string[]): JsonObject {
     feature('ANTI_DISTILLATION_CC')
       ? process.env.CLAUDE_CODE_ENTRYPOINT === 'cli' &&
         shouldIncludeFirstPartyOnlyBetas() &&
-        getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_anti_distill_fake_tool_injection',
-          false,
-        )
+        false
       : false
   ) {
     result.anti_distillation = ['fake_tools']
@@ -416,9 +413,7 @@ function should1hCacheTTL(querySource?: QuerySource): boolean {
   // TTLs when GrowthBook's disk cache updates mid-request
   let allowlist = getPromptCache1hAllowlist()
   if (allowlist === null) {
-    const config = getFeatureValue_CACHED_MAY_BE_STALE<{
-      allowlist?: string[]
-    }>('tengu_prompt_cache_1h_config', {})
+    const config = {}
     allowlist = config.allowlist ?? []
     setPromptCache1hAllowlist(allowlist)
   }
@@ -879,18 +874,6 @@ export async function* executeNonStreamingRequest(
         // timeouts). Lets us distinguish "fallback hung past container kill"
         // (no event) from "fallback hit the bounded timeout" (this event).
         logForDiagnosticsNoPII('error', 'cli_nonstreaming_fallback_error')
-        logEvent('tengu_nonstreaming_fallback_error', {
-          model:
-            clientOptions.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          error:
-            err instanceof Error
-              ? (err.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-              : ('unknown' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
-          attempt,
-          timeout_ms: fallbackTimeoutMs,
-          request_id: (originatingRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
         throw err
       }
     },
@@ -1032,15 +1015,11 @@ async function* queryModel(
     !isClaudeAISubscriber() &&
     isNonCustomOpusModel(options.model) &&
     (
-      await getDynamicConfig_BLOCKS_ON_INIT<{ activated: boolean }>(
-        'tengu-off-switch',
-        {
+      await {
           activated: false,
-        },
-      )
+        }
     ).activated
   ) {
-    logEvent('tengu_off_switch_query', {})
     yield getAssistantMessageFromError(
       new Error(CUSTOM_OFF_SWITCH_MESSAGE),
       options.model,
@@ -1258,9 +1237,6 @@ async function* queryModel(
 
   // Normalize messages before building system prompt (needed for fingerprinting)
   // Instrumentation: Track message count before normalization
-  logEvent('tengu_api_before_normalize', {
-    preNormalizedMessageCount: messages.length,
-  })
 
   queryCheckpoint('query_message_normalization_start')
   let messagesForAPI = normalizeMessagesForAPI(messages, filteredTools)
@@ -1315,9 +1291,6 @@ async function* queryModel(
   )
 
   // Instrumentation: Track message count after normalization
-  logEvent('tengu_api_after_normalize', {
-    postNormalizedMessageCount: messagesForAPI.length,
-  })
 
   // Compute fingerprint from first user message for attribution.
   // Must run BEFORE injecting synthetic messages (e.g. deferred tool names)
@@ -1916,13 +1889,6 @@ async function* queryModel(
           { level: 'error' },
         )
         logForDiagnosticsNoPII('error', 'cli_streaming_idle_timeout')
-        logEvent('tengu_streaming_idle_timeout', {
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          timeout_ms: STREAM_IDLE_TIMEOUT_MS,
-        })
         releaseStreamResources()
       }, STREAM_IDLE_TIMEOUT_MS)
     }
@@ -1951,17 +1917,6 @@ async function* queryModel(
               `Streaming stall detected: ${(timeSinceLastEvent / 1000).toFixed(1)}s gap between events (stall #${stallCount})`,
               { level: 'warn' },
             )
-            logEvent('tengu_streaming_stall', {
-              stall_duration_ms: timeSinceLastEvent,
-              stall_count: stallCount,
-              total_stall_time_ms: totalStallTime,
-              event_type:
-                part.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              model:
-                options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              request_id: (streamRequestId ??
-                'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            })
           }
         }
         lastEventTime = now
@@ -2008,12 +1963,6 @@ async function* queryModel(
                 if ((part.content_block.name as string) === 'advisor') {
                   isAdvisorInProgress = true
                   logForDebugging(`[AdvisorTool] Advisor tool called`)
-                  logEvent('tengu_advisor_tool_call', {
-                    model:
-                      options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    advisor_model: (advisorModel ??
-                      'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                  })
                 }
                 break
               case 'text':
@@ -2054,13 +2003,6 @@ async function* queryModel(
             const contentBlock = contentBlocks[part.index]
             const delta = part.delta as typeof part.delta | ConnectorTextDelta
             if (!contentBlock) {
-              logEvent('tengu_streaming_error', {
-                error_type:
-                  'content_block_not_found_delta' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                part_type:
-                  part.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                part_index: part.index,
-              })
               throw new RangeError('Content block not found')
             }
             if (
@@ -2068,14 +2010,6 @@ async function* queryModel(
               delta.type === 'connector_text_delta'
             ) {
               if (contentBlock.type !== 'connector_text') {
-                logEvent('tengu_streaming_error', {
-                  error_type:
-                    'content_block_type_mismatch_connector_text' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                  expected_type:
-                    'connector_text' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                  actual_type:
-                    contentBlock.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                })
                 throw new Error('Content block is not a connector_text block')
               }
               contentBlock.connector_text += delta.connector_text
@@ -2089,37 +2023,15 @@ async function* queryModel(
                     contentBlock.type !== 'tool_use' &&
                     contentBlock.type !== 'server_tool_use'
                   ) {
-                    logEvent('tengu_streaming_error', {
-                      error_type:
-                        'content_block_type_mismatch_input_json' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      expected_type:
-                        'tool_use' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      actual_type:
-                        contentBlock.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    })
                     throw new Error('Content block is not a input_json block')
                   }
                   if (typeof contentBlock.input !== 'string') {
-                    logEvent('tengu_streaming_error', {
-                      error_type:
-                        'content_block_input_not_string' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      input_type:
-                        typeof contentBlock.input as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    })
                     throw new Error('Content block input is not a string')
                   }
                   contentBlock.input += delta.partial_json
                   break
                 case 'text_delta':
                   if (contentBlock.type !== 'text') {
-                    logEvent('tengu_streaming_error', {
-                      error_type:
-                        'content_block_type_mismatch_text' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      expected_type:
-                        'text' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      actual_type:
-                        contentBlock.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    })
                     throw new Error('Content block is not a text block')
                   }
                   contentBlock.text += delta.text
@@ -2133,28 +2045,12 @@ async function* queryModel(
                     break
                   }
                   if (contentBlock.type !== 'thinking') {
-                    logEvent('tengu_streaming_error', {
-                      error_type:
-                        'content_block_type_mismatch_thinking_signature' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      expected_type:
-                        'thinking' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      actual_type:
-                        contentBlock.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    })
                     throw new Error('Content block is not a thinking block')
                   }
                   contentBlock.signature = delta.signature
                   break
                 case 'thinking_delta':
                   if (contentBlock.type !== 'thinking') {
-                    logEvent('tengu_streaming_error', {
-                      error_type:
-                        'content_block_type_mismatch_thinking_delta' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      expected_type:
-                        'thinking' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                      actual_type:
-                        contentBlock.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                    })
                     throw new Error('Content block is not a thinking block')
                   }
                   contentBlock.thinking += delta.thinking
@@ -2171,22 +2067,9 @@ async function* queryModel(
           case 'content_block_stop': {
             const contentBlock = contentBlocks[part.index]
             if (!contentBlock) {
-              logEvent('tengu_streaming_error', {
-                error_type:
-                  'content_block_not_found_stop' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                part_type:
-                  part.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                part_index: part.index,
-              })
               throw new RangeError('Content block not found')
             }
             if (!partialMessage) {
-              logEvent('tengu_streaming_error', {
-                error_type:
-                  'partial_message_not_found' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-                part_type:
-                  part.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              })
               throw new Error('Message not found')
             }
             const m: AssistantMessage = {
@@ -2264,9 +2147,6 @@ async function* queryModel(
             }
 
             if (stopReason === 'max_tokens') {
-              logEvent('tengu_max_tokens_reached', {
-                max_tokens: maxOutputTokens,
-              })
               yield createAssistantAPIErrorMessage({
                 content: `${API_ERROR_MESSAGE_PREFIX}: Claude's response exceeded the ${
                   maxOutputTokens
@@ -2277,10 +2157,6 @@ async function* queryModel(
             }
 
             if (stopReason === 'model_context_window_exceeded') {
-              logEvent('tengu_context_window_exceeded', {
-                max_tokens: maxOutputTokens,
-                output_tokens: usage.output_tokens,
-              })
               // Reuse the max_output_tokens recovery path — from the model's
               // perspective, both mean "response was cut off, continue from
               // where you left off."
@@ -2319,15 +2195,6 @@ async function* queryModel(
           'info',
           'cli_stream_loop_exited_after_watchdog_clean',
         )
-        logEvent('tengu_stream_loop_exited_after_watchdog', {
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          exit_delay_ms: exitDelayMs,
-          exit_path:
-            'clean' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
         // Prevent double-emit: this throw lands in the catch block below,
         // whose exit_path='error' probe guards on streamWatchdogFiredAt.
         streamWatchdogFiredAt = null
@@ -2354,12 +2221,6 @@ async function* queryModel(
             : 'Stream completed with message_start but no content blocks completed - triggering non-streaming fallback',
           { level: 'error' },
         )
-        logEvent('tengu_stream_no_events', {
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
         throw new Error('Stream ended without receiving any events')
       }
 
@@ -2369,14 +2230,6 @@ async function* queryModel(
           `Streaming completed with ${stallCount} stall(s), total stall time: ${(totalStallTime / 1000).toFixed(1)}s`,
           { level: 'warn' },
         )
-        logEvent('tengu_streaming_stall_summary', {
-          stall_count: stallCount,
-          total_stall_time_ms: totalStallTime,
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
       }
 
       // Check if the cache actually broke based on response tokens
@@ -2416,19 +2269,6 @@ async function* queryModel(
           'info',
           'cli_stream_loop_exited_after_watchdog_error',
         )
-        logEvent('tengu_stream_loop_exited_after_watchdog', {
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          exit_delay_ms: exitDelayMs,
-          exit_path:
-            'error' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          error_name:
-            streamingError instanceof Error
-              ? (streamingError.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-              : ('unknown' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
       }
 
       if (streamingError instanceof APIUserAbortError) {
@@ -2441,12 +2281,6 @@ async function* queryModel(
             `Streaming aborted by user: ${errorMessage(streamingError)}`,
           )
           if (isAdvisorInProgress) {
-            logEvent('tengu_advisor_tool_interrupted', {
-              model:
-                options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              advisor_model: (advisorModel ??
-                'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            })
           }
           throw streamingError
         } else {
@@ -2468,36 +2302,13 @@ async function* queryModel(
       // and runs it again. See inc-4258.
       const disableFallback =
         isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NONSTREAMING_FALLBACK) ||
-        getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_disable_streaming_to_non_streaming_fallback',
-          false,
-        )
+        false
 
       if (disableFallback) {
         logForDebugging(
           `Error streaming (non-streaming fallback disabled): ${errorMessage(streamingError)}`,
           { level: 'error' },
         )
-        logEvent('tengu_streaming_fallback_to_non_streaming', {
-          model:
-            options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          error:
-            streamingError instanceof Error
-              ? (streamingError.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-              : (String(
-                  streamingError,
-                ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
-          attemptNumber,
-          maxOutputTokens,
-          thinkingType:
-            thinkingConfig.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          fallback_disabled: true,
-          request_id: (streamRequestId ??
-            'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          fallback_cause: (streamIdleAborted
-            ? 'watchdog'
-            : 'other') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        })
         throw streamingError
       }
 
@@ -2510,26 +2321,6 @@ async function* queryModel(
         options.onStreamingFallback()
       }
 
-      logEvent('tengu_streaming_fallback_to_non_streaming', {
-        model:
-          options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        error:
-          streamingError instanceof Error
-            ? (streamingError.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS)
-            : (String(
-                streamingError,
-              ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS),
-        attemptNumber,
-        maxOutputTokens,
-        thinkingType:
-          thinkingConfig.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        fallback_disabled: false,
-        request_id: (streamRequestId ??
-          'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        fallback_cause: (streamIdleAborted
-          ? 'watchdog'
-          : 'other') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
 
       // Fall back to non-streaming mode with retries.
       // If the streaming failure was itself a 529, count it toward the
@@ -2539,15 +2330,6 @@ async function* queryModel(
       // Instrumentation: proves executeNonStreamingRequest was entered (vs. the
       // fallback event firing but the call itself hanging at dispatch).
       logForDiagnosticsNoPII('info', 'cli_nonstreaming_fallback_started')
-      logEvent('tengu_nonstreaming_fallback_started', {
-        request_id: (streamRequestId ??
-          'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        model:
-          options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        fallback_cause: (streamIdleAborted
-          ? 'watchdog'
-          : 'other') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
       const result = yield* executeNonStreamingRequest(
         { model: options.model, source: options.querySource },
         {
@@ -2630,20 +2412,6 @@ async function* queryModel(
         options.onStreamingFallback()
       }
 
-      logEvent('tengu_streaming_fallback_to_non_streaming', {
-        model:
-          options.model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        error:
-          '404_stream_creation' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        attemptNumber,
-        maxOutputTokens,
-        thinkingType:
-          thinkingConfig.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        request_id:
-          failedRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        fallback_cause:
-          '404_stream_creation' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
 
       try {
         // Fall back to non-streaming mode
@@ -3069,11 +2837,6 @@ export function addCacheBreakpoints(
   pinnedEdits?: CachedMCPinnedEdits[],
   skipCacheWrite = false,
 ): MessageParam[] {
-  logEvent('tengu_api_cache_breakpoints', {
-    totalMessageCount: messages.length,
-    cachingEnabled: enablePromptCaching,
-    skipCacheWrite,
-  })
 
   // Exactly one message-level cache_control marker per request. Mycro's
   // turn-to-turn eviction (page_manager/index.rs: Index::insert) frees
@@ -3393,7 +3156,7 @@ export function adjustParamsForNonStreaming<
 
 function isMaxTokensCapEnabled(): boolean {
   // 3P default: false (not validated on Bedrock/Vertex)
-  return getFeatureValue_CACHED_MAY_BE_STALE('tengu_otk_slot_v1', false)
+  return false
 }
 
 export function getMaxOutputTokensForModel(model: string): number {

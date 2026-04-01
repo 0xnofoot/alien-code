@@ -112,36 +112,18 @@ function logApprovalEvent(
 ): void {
   if (source === 'config') {
     // Auto-approved by allowlist in settings -- no user wait time
-    logEvent(
-      'tengu_tool_use_granted_in_config',
-      baseMetadata(messageId, tool.name, undefined),
-    )
     return
   }
   if (
     (feature('BASH_CLASSIFIER') || feature('TRANSCRIPT_CLASSIFIER')) &&
     source.type === 'classifier'
   ) {
-    logEvent(
-      'tengu_tool_use_granted_by_classifier',
-      baseMetadata(messageId, tool.name, waitMs),
-    )
     return
   }
   switch (source.type) {
     case 'user':
-      logEvent(
-        source.permanent
-          ? 'tengu_tool_use_granted_in_prompt_permanent'
-          : 'tengu_tool_use_granted_in_prompt_temporary',
-        baseMetadata(messageId, tool.name, waitMs),
-      )
       break
     case 'hook':
-      logEvent('tengu_tool_use_granted_by_permission_hook', {
-        ...baseMetadata(messageId, tool.name, waitMs),
-        permanent: source.permanent ?? false,
-      })
       break
     default:
       break
@@ -157,22 +139,8 @@ function logRejectionEvent(
 ): void {
   if (source === 'config') {
     // Denied by denylist in settings
-    logEvent(
-      'tengu_tool_use_denied_in_config',
-      baseMetadata(messageId, tool.name, undefined),
-    )
     return
   }
-  logEvent('tengu_tool_use_rejected_in_prompt', {
-    ...baseMetadata(messageId, tool.name, waitMs),
-    // Distinguish hook rejections from user rejections via separate fields
-    ...(source.type === 'hook'
-      ? { isHook: true }
-      : {
-          hasFeedback:
-            source.type === 'user_reject' ? source.hasFeedback : false,
-        }),
-  })
 }
 
 // Single entry point for all permission decision logging. Called by permission

@@ -296,7 +296,7 @@ function isProjectDirPath(absolutePath: string): boolean {
  * Controlled by the tengu_scratch Statsig gate.
  */
 export function isScratchpadEnabled(): boolean {
-  return checkStatsigFeatureGate_CACHED_MAY_BE_STALE('tengu_scratch')
+  return false
 }
 
 /**

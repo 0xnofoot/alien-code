@@ -170,9 +170,7 @@ export function modelSupportsAutoMode(model: string): boolean {
     // auto mode for listed models, bypassing the denylist/allowlist below.
     // Exact model IDs (e.g. "claude-strudel-v6-p") match only that model;
     // canonical names (e.g. "claude-strudel") match the whole family.
-    const config = getFeatureValue_CACHED_MAY_BE_STALE<{
-      allowModels?: string[]
-    }>('tengu_auto_mode_config', {})
+    const config = {}
     const rawLower = model.toLowerCase()
     if (
       config?.allowModels?.some(
@@ -292,7 +290,7 @@ export const getAllModelBetas = memoize((model: string): string[] => {
     includeFirstPartyOnlyBetas &&
     !isEnvDefinedFalsy(process.env.USE_CONNECTOR_TEXT_SUMMARIZATION) &&
     (isEnvTruthy(process.env.USE_CONNECTOR_TEXT_SUMMARIZATION) ||
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_slate_prism', false))
+      false)
   ) {
     betaHeaders.push(SUMMARIZE_CONNECTOR_TEXT_BETA_HEADER)
   }
@@ -317,12 +315,12 @@ export const getAllModelBetas = memoize((model: string): string[] => {
   // firstParty but forward to Vertex reject this header with 400.
   // github.com/deshaw/anthropic-issues/issues/5
   const strictToolsEnabled =
-    checkStatsigFeatureGate_CACHED_MAY_BE_STALE('tengu_tool_pear')
+    false
   // 3P default: false. API rejects strict + token-efficient-tools together
   // (tool_use.py:139), so these are mutually exclusive — strict wins.
   const tokenEfficientToolsEnabled =
     !strictToolsEnabled &&
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_json_tools', false)
+    false
   if (
     includeFirstPartyOnlyBetas &&
     modelSupportsStructuredOutputs(model) &&

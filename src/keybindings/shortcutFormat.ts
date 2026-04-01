@@ -46,16 +46,6 @@ export function getShortcutDisplay(
     const key = `${action}:${context}`
     if (!LOGGED_FALLBACKS.has(key)) {
       LOGGED_FALLBACKS.add(key)
-      logEvent('tengu_keybinding_fallback_used', {
-        action:
-          action as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        context:
-          context as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        fallback:
-          fallback as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        reason:
-          'action_not_found' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
     }
     return fallback
   }

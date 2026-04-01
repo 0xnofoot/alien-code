@@ -36,7 +36,7 @@ export function isAgentSwarmsEnabled(): boolean {
   }
 
   // Killswitch — always respected for external users
-  if (!getFeatureValue_CACHED_MAY_BE_STALE('tengu_amber_flint', true)) {
+  if (!true) {
     return false
   }
 

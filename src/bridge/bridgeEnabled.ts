@@ -31,7 +31,7 @@ export function isBridgeEnabled(): boolean {
   // inline string literals from external builds.
   return feature('BRIDGE_MODE')
     ? isClaudeAISubscriber() &&
-        getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_bridge', false)
+        false
     : false
 }
 
@@ -50,7 +50,7 @@ export function isBridgeEnabled(): boolean {
 export async function isBridgeEnabledBlocking(): Promise<boolean> {
   return feature('BRIDGE_MODE')
     ? isClaudeAISubscriber() &&
-        (await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge'))
+        (await false)
     : false
 }
 
@@ -78,7 +78,7 @@ export async function getBridgeDisabledReason(): Promise<string | null> {
     if (!getOauthAccountInfo()?.organizationUuid) {
       return 'Unable to determine your organization for Remote Control eligibility. Run `claude auth login` to refresh your account information.'
     }
-    if (!(await checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge'))) {
+    if (!(await false)) {
       return 'Remote Control is not yet enabled for your account.'
     }
     return null
@@ -125,7 +125,7 @@ function getOauthAccountInfo(): ReturnType<
  */
 export function isEnvLessBridgeEnabled(): boolean {
   return feature('BRIDGE_MODE')
-    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_bridge_repl_v2', false)
+    ? false
     : false
 }
 
@@ -140,10 +140,7 @@ export function isEnvLessBridgeEnabled(): boolean {
  */
 export function isCseShimEnabled(): boolean {
   return feature('BRIDGE_MODE')
-    ? getFeatureValue_CACHED_MAY_BE_STALE(
-        'tengu_bridge_repl_v2_cse_shim_enabled',
-        true,
-      )
+    ? true
     : true
 }
 
@@ -162,9 +159,7 @@ export function checkBridgeMinVersion(): string | null {
   // Negative pattern (if (!feature(...)) return) does not eliminate
   // inline string literals from external builds.
   if (feature('BRIDGE_MODE')) {
-    const config = getDynamicConfig_CACHED_MAY_BE_STALE<{
-      minVersion: string
-    }>('tengu_bridge_min_version', { minVersion: '0.0.0' })
+    const config = { minVersion: '0.0.0' }
     if (config.minVersion && lt(MACRO.VERSION, config.minVersion)) {
       return `Your version of Claude Code (${MACRO.VERSION}) is too old for Remote Control.\nVersion ${config.minVersion} or higher is required. Run \`claude update\` to update.`
     }
@@ -184,7 +179,7 @@ export function checkBridgeMinVersion(): string | null {
  */
 export function getCcrAutoConnectDefault(): boolean {
   return feature('CCR_AUTO_CONNECT')
-    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_harbor', false)
+    ? false
     : false
 }
 
@@ -197,6 +192,6 @@ export function getCcrAutoConnectDefault(): boolean {
 export function isCcrMirrorEnabled(): boolean {
   return feature('CCR_MIRROR')
     ? isEnvTruthy(process.env.CLAUDE_CODE_CCR_MIRROR) ||
-        getFeatureValue_CACHED_MAY_BE_STALE('tengu_ccr_mirror', false)
+        false
     : false
 }

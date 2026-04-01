@@ -69,13 +69,6 @@ export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
           result.message?.type === 'attachment' &&
           result.message.attachment.type === 'hook_cancelled'
         ) {
-          logEvent('tengu_post_tool_hooks_cancelled', {
-            toolName: sanitizeToolNameForAnalytics(tool.name),
-
-            queryChainId: toolUseContext.queryTracking
-              ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            queryDepth: toolUseContext.queryTracking?.depth,
-          })
           yield {
             message: createAttachmentMessage({
               type: 'hook_cancelled',
@@ -151,29 +144,6 @@ export async function* runPostToolUseHooks<Input extends AnyObject, Output>(
         }
       } catch (error) {
         const postToolDurationMs = Date.now() - postToolStartTime
-        logEvent('tengu_post_tool_hook_error', {
-          messageID:
-            messageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          toolName: sanitizeToolNameForAnalytics(tool.name),
-          isMcp: tool.isMcp ?? false,
-          duration: postToolDurationMs,
-
-          queryChainId: toolUseContext.queryTracking
-            ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          queryDepth: toolUseContext.queryTracking?.depth,
-          ...(mcpServerType
-            ? {
-                mcpServerType:
-                  mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-          ...(requestId
-            ? {
-                requestId:
-                  requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-        })
         yield {
           message: createAttachmentMessage({
             type: 'hook_error_during_execution',
@@ -225,12 +195,6 @@ export async function* runPostToolUseFailureHooks<Input extends AnyObject>(
           result.message?.type === 'attachment' &&
           result.message.attachment.type === 'hook_cancelled'
         ) {
-          logEvent('tengu_post_tool_failure_hooks_cancelled', {
-            toolName: sanitizeToolNameForAnalytics(tool.name),
-            queryChainId: toolUseContext.queryTracking
-              ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            queryDepth: toolUseContext.queryTracking?.depth,
-          })
           yield {
             message: createAttachmentMessage({
               type: 'hook_cancelled',
@@ -280,28 +244,6 @@ export async function* runPostToolUseFailureHooks<Input extends AnyObject>(
         }
       } catch (hookError) {
         const postToolDurationMs = Date.now() - postToolStartTime
-        logEvent('tengu_post_tool_failure_hook_error', {
-          messageID:
-            messageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          toolName: sanitizeToolNameForAnalytics(tool.name),
-          isMcp: tool.isMcp ?? false,
-          duration: postToolDurationMs,
-          queryChainId: toolUseContext.queryTracking
-            ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          queryDepth: toolUseContext.queryTracking?.depth,
-          ...(mcpServerType
-            ? {
-                mcpServerType:
-                  mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-          ...(requestId
-            ? {
-                requestId:
-                  requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-        })
         yield {
           message: createAttachmentMessage({
             type: 'hook_error_during_execution',
@@ -580,13 +522,6 @@ export async function* runPreToolUseHooks(
 
         // Check if we were aborted during hook execution
         if (toolUseContext.abortController.signal.aborted) {
-          logEvent('tengu_pre_tool_hooks_cancelled', {
-            toolName: sanitizeToolNameForAnalytics(tool.name),
-
-            queryChainId: toolUseContext.queryTracking
-              ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            queryDepth: toolUseContext.queryTracking?.depth,
-          })
           yield {
             type: 'message',
             message: {
@@ -604,29 +539,6 @@ export async function* runPreToolUseHooks(
       } catch (error) {
         logError(error)
         const durationMs = Date.now() - hookStartTime
-        logEvent('tengu_pre_tool_hook_error', {
-          messageID:
-            messageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          toolName: sanitizeToolNameForAnalytics(tool.name),
-          isMcp: tool.isMcp ?? false,
-          duration: durationMs,
-
-          queryChainId: toolUseContext.queryTracking
-            ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          queryDepth: toolUseContext.queryTracking?.depth,
-          ...(mcpServerType
-            ? {
-                mcpServerType:
-                  mcpServerType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-          ...(requestId
-            ? {
-                requestId:
-                  requestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              }
-            : {}),
-        })
         yield {
           type: 'message',
           message: {

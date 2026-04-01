@@ -63,10 +63,6 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
   const onOpen = useCallback((appearanceId: string) => {
-    logEvent(MEMORY_SURVEY_EVENT, {
-      event_type: 'appeared' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     void logOTelEvent('feedback_survey', {
       event_type: 'appeared',
       appearance_id: appearanceId,
@@ -74,11 +70,6 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     });
   }, []);
   const onSelect = useCallback((appearanceId_0: string, selected: FeedbackSurveyResponse) => {
-    logEvent(MEMORY_SURVEY_EVENT, {
-      event_type: 'responded' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      appearance_id: appearanceId_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     void logOTelEvent('feedback_survey', {
       event_type: 'responded',
       appearance_id: appearanceId_0,
@@ -102,11 +93,6 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     return true;
   }, []);
   const onTranscriptPromptShown = useCallback((appearanceId_1: string) => {
-    logEvent(MEMORY_SURVEY_EVENT, {
-      event_type: 'transcript_prompt_appeared' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      appearance_id: appearanceId_1 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      trigger: TRANSCRIPT_SHARE_TRIGGER as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     void logOTelEvent('feedback_survey', {
       event_type: 'transcript_prompt_appeared',
       appearance_id: appearanceId_1,
@@ -114,11 +100,6 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     });
   }, []);
   const onTranscriptSelect = useCallback(async (appearanceId_2: string, selected_1: TranscriptShareResponse): Promise<boolean> => {
-    logEvent(MEMORY_SURVEY_EVENT, {
-      event_type: `transcript_share_${selected_1}` as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      appearance_id: appearanceId_2 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      trigger: TRANSCRIPT_SHARE_TRIGGER as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     if (selected_1 === 'dont_ask_again') {
       saveGlobalConfig(current => ({
         ...current,
@@ -127,11 +108,6 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     }
     if (selected_1 === 'yes') {
       const result = await submitTranscriptShare(messagesRef.current, TRANSCRIPT_SHARE_TRIGGER, appearanceId_2);
-      logEvent(MEMORY_SURVEY_EVENT, {
-        event_type: (result.success ? 'transcript_share_submitted' : 'transcript_share_failed') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        appearance_id: appearanceId_2 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        trigger: TRANSCRIPT_SHARE_TRIGGER as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       return result.success;
     }
     return false;
@@ -166,7 +142,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     }
 
     // 3P default: survey off (no GrowthBook on Bedrock/Vertex/Foundry).
-    if (!getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false)) {
+    if (!false) {
       return;
     }
     if (!isAutoMemoryEnabled()) {

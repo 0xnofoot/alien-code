@@ -691,7 +691,6 @@ export const BashTool = buildTool({
 
       // Check for git index.lock error (stderr is in stdout now)
       if (result.stdout && result.stdout.includes(".git/index.lock': File exists")) {
-        logEvent('tengu_git_index_lock_error', {});
       }
       if (interpretationResult.isError && !isInterrupt) {
         // Only add exit code if it's actually an error
@@ -752,22 +751,10 @@ export const BashTool = buildTool({
       }
     }
     const commandType = input.command.split(' ')[0];
-    logEvent('tengu_bash_tool_command_executed', {
-      command_type: commandType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      stdout_length: stdout.length,
-      stderr_length: 0,
-      exit_code: result.code,
-      interrupted: wasInterrupted
-    });
 
     // Log code indexing tool usage
     const codeIndexingTool = detectCodeIndexingFromCommand(input.command);
     if (codeIndexingTool) {
-      logEvent('tengu_code_indexing_tool_used', {
-        tool: codeIndexingTool as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        source: 'cli' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        success: result.code === 0
-      });
     }
     let strippedStdout = stripEmptyLines(stdout);
 
@@ -931,9 +918,6 @@ async function* runShellCommand({
         return;
       }
       backgroundShellId = foregroundTaskId;
-      logEvent(eventName, {
-        command_type: getCommandTypeForLogging(command)
-      });
       backgroundFn?.(foregroundTaskId);
       return;
     }
@@ -953,9 +937,6 @@ async function* runShellCommand({
         resolveProgress = null;
         resolve();
       }
-      logEvent(eventName, {
-        command_type: getCommandTypeForLogging(command)
-      });
       if (backgroundFn) {
         backgroundFn(shellId);
       }
@@ -988,9 +969,6 @@ async function* runShellCommand({
   // Skip if background tasks are disabled - run in foreground instead
   if (run_in_background === true && !isBackgroundTasksDisabled) {
     const shellId = await spawnBackgroundTask();
-    logEvent('tengu_bash_command_explicitly_backgrounded', {
-      command_type: getCommandTypeForLogging(command)
-    });
     return {
       stdout: '',
       stderr: '',

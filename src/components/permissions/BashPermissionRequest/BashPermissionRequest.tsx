@@ -271,7 +271,7 @@ function BashPermissionRequestInner({
     sandboxingEnabled: sandboxingEnabled_0,
     isSandboxed: isSandboxed_0
   } = useMemo(() => {
-    const destructiveWarning = getFeatureValue_CACHED_MAY_BE_STALE('tengu_destructive_command_warning', false) ? getDestructiveCommandWarning(command) : null;
+    const destructiveWarning = false ? getDestructiveCommandWarning(command) : null;
     const sandboxingEnabled = SandboxManager.isSandboxingEnabled();
     const isSandboxed = sandboxingEnabled && shouldUseSandbox(toolUseConfirm.input);
     return {
@@ -334,10 +334,6 @@ function BashPermissionRequestInner({
         no: 4
       };
     }
-    logEvent('tengu_permission_request_option_selected', {
-      option_index: optionIndex[value_0],
-      explainer_visible: explainerState.visible
-    });
     const toolNameForAnalytics = sanitizeToolNameForAnalytics(toolUseConfirm.tool.name) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS;
     if (value_0 === 'yes-prefix-edited') {
       const trimmedPrefix = (editablePrefix ?? '').trim();
@@ -385,13 +381,6 @@ function BashPermissionRequestInner({
           const trimmedFeedback_0 = acceptFeedback.trim();
           logUnaryPermissionEvent('tool_use_single', toolUseConfirm, 'accept');
           // Log accept submission with feedback context
-          logEvent('tengu_accept_submitted', {
-            toolName: toolNameForAnalytics,
-            isMcp: toolUseConfirm.tool.isMcp ?? false,
-            has_instructions: !!trimmedFeedback_0,
-            instructions_length: trimmedFeedback_0.length,
-            entered_feedback_mode: yesFeedbackModeEntered
-          });
           toolUseConfirm.onAllow(toolUseConfirm.input, [], trimmedFeedback_0 || undefined);
           onDone();
           break;
@@ -410,13 +399,6 @@ function BashPermissionRequestInner({
           const trimmedFeedback = rejectFeedback.trim();
 
           // Log reject submission with feedback context
-          logEvent('tengu_reject_submitted', {
-            toolName: toolNameForAnalytics,
-            isMcp: toolUseConfirm.tool.isMcp ?? false,
-            has_instructions: !!trimmedFeedback,
-            instructions_length: trimmedFeedback.length,
-            entered_feedback_mode: noFeedbackModeEntered
-          });
 
           // Process rejection (with or without feedback)
           handleReject(trimmedFeedback || undefined);

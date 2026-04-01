@@ -634,13 +634,6 @@ export const PowerShellTool = buildTool({
         }
       }
       const finalStderr = [result.stderr || '', stderrForShellReset].filter(Boolean).join('\n');
-      logEvent('tengu_powershell_tool_command_executed', {
-        command_type: getCommandTypeForLogging(input.command),
-        stdout_length: compressedStdout.length,
-        stderr_length: finalStderr.length,
-        exit_code: result.code,
-        interrupted: result.interrupted
-      });
       return {
         data: {
           stdout: compressedStdout,
@@ -791,9 +784,6 @@ async function* runPowerShellCommand({
         return;
       }
       backgroundShellId = foregroundTaskId;
-      logEvent(eventName, {
-        command_type: getCommandTypeForLogging(command)
-      });
       backgroundFn?.(foregroundTaskId);
       return;
     }
@@ -811,9 +801,6 @@ async function* runPowerShellCommand({
         resolveProgress = null;
         resolve();
       }
-      logEvent(eventName, {
-        command_type: getCommandTypeForLogging(command)
-      });
       if (backgroundFn) {
         backgroundFn(shellId);
       }
@@ -844,9 +831,6 @@ async function* runPowerShellCommand({
   // regardless of the command type (isAutobackgroundingAllowed only applies to automatic backgrounding)
   if (run_in_background === true && !isBackgroundTasksDisabled) {
     const shellId = await spawnBackgroundTask();
-    logEvent('tengu_powershell_command_explicitly_backgrounded', {
-      command_type: getCommandTypeForLogging(command)
-    });
     return {
       stdout: '',
       stderr: '',

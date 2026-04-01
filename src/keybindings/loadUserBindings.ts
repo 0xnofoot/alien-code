@@ -39,10 +39,7 @@ import {
  * can check the same condition consistently.
  */
 export function isKeybindingCustomizationEnabled(): boolean {
-  return getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_keybinding_customization_release',
-    false,
-  )
+  return false
 }
 
 /**
@@ -84,9 +81,6 @@ function logCustomBindingsLoadedOncePerDay(userBindingCount: number): void {
   const today = new Date().toISOString().slice(0, 10)
   if (lastCustomBindingsLogDate === today) return
   lastCustomBindingsLogDate = today
-  logEvent('tengu_custom_keybindings_loaded', {
-    user_binding_count: userBindingCount,
-  })
 }
 
 /**

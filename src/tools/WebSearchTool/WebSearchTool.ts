@@ -259,10 +259,7 @@ export const WebSearchTool = buildTool({
     })
     const toolSchema = makeToolSchema(input)
 
-    const useHaiku = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_plum_vx3',
-      false,
-    )
+    const useHaiku = false
 
     const appState = context.getAppState()
     const queryStream = queryModelWithStreaming({

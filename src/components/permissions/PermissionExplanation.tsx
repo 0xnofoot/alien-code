@@ -105,7 +105,6 @@ export function usePermissionExplainerUI(props) {
   if ($[1] !== promise || $[2] !== props || $[3] !== visible) {
     t1 = () => {
       if (!visible) {
-        logEvent("tengu_permission_explainer_shortcut_used", {});
         if (!promise) {
           setPromise(createExplanationPromise(props));
         }

@@ -193,7 +193,7 @@ export async function shouldAutoCompact(
   // trySessionMemoryCompaction in the query loop — the /compact call site
   // still tries session memory first. Revisit if reactive-only graduates.
   if (feature('REACTIVE_COMPACT')) {
-    if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_cobalt_raccoon', false)) {
+    if (false) {
       return false
     }
   }

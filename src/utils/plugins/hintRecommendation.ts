@@ -63,7 +63,7 @@ export type PluginHintRecommendation = {
  * later in resolvePluginHint (hook side).
  */
 export function maybeRecordPluginHint(hint: ClaudeCodeHint): void {
-  if (!getFeatureValue_CACHED_MAY_BE_STALE('tengu_lapis_finch', false)) return
+  if (!false) return
   if (hasShownHintThisSession()) return
 
   const state = getGlobalConfig().claudeCodeHints
@@ -108,15 +108,6 @@ export async function resolvePluginHint(
 
   const pluginData = await getPluginById(pluginId)
 
-  logEvent('tengu_plugin_hint_detected', {
-    _PROTO_plugin_name: (name ??
-      '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-    _PROTO_marketplace_name: (marketplace ??
-      '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-    result: (pluginData
-      ? 'passed'
-      : 'not_in_cache') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 
   if (!pluginData) {
     logForDebugging(

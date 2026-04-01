@@ -59,9 +59,4 @@ export function migrateSonnet45ToSonnet46(): void {
     }))
   }
 
-  logEvent('tengu_sonnet45_to_46_migration', {
-    from_model:
-      model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    has_1m: has1m,
-  })
 }

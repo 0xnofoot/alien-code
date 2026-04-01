@@ -70,15 +70,6 @@ function handleAcceptOnce(
   logPermissionEvent('accept', completionType, languageName, messageId)
 
   // Log accept submission with feedback context
-  logEvent('tengu_accept_submitted', {
-    toolName: sanitizeToolNameForAnalytics(
-      toolUseConfirm.tool.name,
-    ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    isMcp: toolUseConfirm.tool.isMcp ?? false,
-    has_instructions: !!options?.feedback,
-    instructions_length: options?.feedback?.length ?? 0,
-    entered_feedback_mode: options?.enteredFeedbackMode ?? false,
-  })
 
   onDone()
   toolUseConfirm.onAllow(toolUseConfirm.input, [], options?.feedback)
@@ -160,15 +151,6 @@ function handleReject(
   )
 
   // Log reject submission with feedback context
-  logEvent('tengu_reject_submitted', {
-    toolName: sanitizeToolNameForAnalytics(
-      toolUseConfirm.tool.name,
-    ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    isMcp: toolUseConfirm.tool.isMcp ?? false,
-    has_instructions: !!options?.feedback,
-    instructions_length: options?.feedback?.length ?? 0,
-    entered_feedback_mode: options?.enteredFeedbackMode ?? false,
-  })
 
   onDone()
   onReject()

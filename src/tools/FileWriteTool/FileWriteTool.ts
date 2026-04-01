@@ -24,7 +24,6 @@ import {
   fileHistoryEnabled,
   fileHistoryTrackEdit,
 } from '../../utils/fileHistory.js'
-import { logFileOperation } from '../../utils/fileOperationAnalytics.js'
 import { readFileSyncWithMetadata } from '../../utils/fileRead.js'
 import { getFsImplementation } from '../../utils/fsOperations.js'
 import {
@@ -338,22 +337,16 @@ export const FileWriteTool = buildTool({
 
     // Log when writing to CLAUDE.md
     if (fullFilePath.endsWith(`${sep}CLAUDE.md`)) {
-      logEvent('tengu_write_claudemd', {})
     }
 
     let gitDiff: ToolUseDiff | undefined
     if (
       isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) &&
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_quartz_lantern', false)
+      false
     ) {
       const startTime = Date.now()
       const diff = await fetchSingleFileGitDiff(fullFilePath)
       if (diff) gitDiff = diff
-      logEvent('tengu_tool_use_diff_computed', {
-        isWriteTool: true,
-        durationMs: Date.now() - startTime,
-        hasDiff: !!diff,
-      })
     }
 
     if (oldContent) {
@@ -380,12 +373,6 @@ export const FileWriteTool = buildTool({
       // Track lines added and removed for file updates, right before yielding result
       countLinesChanged(patch)
 
-      logFileOperation({
-        operation: 'write',
-        tool: 'FileWriteTool',
-        filePath: fullFilePath,
-        type: 'update',
-      })
 
       return {
         data,
@@ -404,12 +391,6 @@ export const FileWriteTool = buildTool({
     // For creation of new files, count all lines as additions, right before yielding the result
     countLinesChanged([], content)
 
-    logFileOperation({
-      operation: 'write',
-      tool: 'FileWriteTool',
-      filePath: fullFilePath,
-      type: 'create',
-    })
 
     return {
       data,

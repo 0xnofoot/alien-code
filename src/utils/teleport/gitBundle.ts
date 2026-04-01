@@ -177,10 +177,6 @@ export async function createAndUploadGitBundle(
     { cwd: gitRoot },
   )
   if (refCheck.code === 0 && refCheck.stdout.trim() === '') {
-    logEvent('tengu_ccr_bundle_upload', {
-      outcome:
-        'empty_repo' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
     return {
       success: false,
       error: 'Repository has no commits yet',
@@ -217,10 +213,7 @@ export async function createAndUploadGitBundle(
   // git leaves a partial file on nonzero exit (e.g. empty-repo 128).
   try {
     const maxBytes =
-      getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
-        'tengu_ccr_bundle_max_bytes',
-        null,
-      ) ?? DEFAULT_BUNDLE_MAX_BYTES
+      null ?? DEFAULT_BUNDLE_MAX_BYTES
 
     const bundle = await _bundleWithFallback(
       gitRoot,
@@ -232,11 +225,6 @@ export async function createAndUploadGitBundle(
 
     if (!bundle.ok) {
       logForDebugging(`[gitBundle] ${bundle.error}`)
-      logEvent('tengu_ccr_bundle_upload', {
-        outcome:
-          bundle.failReason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        max_bytes: maxBytes,
-      })
       return {
         success: false,
         error: bundle.error,
@@ -250,24 +238,12 @@ export async function createAndUploadGitBundle(
     })
 
     if (!upload.success) {
-      logEvent('tengu_ccr_bundle_upload', {
-        outcome:
-          'failed' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
       return { success: false, error: upload.error }
     }
 
     logForDebugging(
       `[gitBundle] Uploaded ${upload.size} bytes as file_id ${upload.fileId}`,
     )
-    logEvent('tengu_ccr_bundle_upload', {
-      outcome:
-        'success' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      size_bytes: upload.size,
-      scope:
-        bundle.scope as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      has_wip: hasWip,
-    })
     return {
       success: true,
       fileId: upload.fileId,

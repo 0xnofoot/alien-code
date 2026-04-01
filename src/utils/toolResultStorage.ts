@@ -62,10 +62,7 @@ export function getPersistenceThreshold(
   if (!Number.isFinite(declaredMaxResultSizeChars)) {
     return declaredMaxResultSizeChars
   }
-  const overrides = getFeatureValue_CACHED_MAY_BE_STALE<Record<
-    string,
-    number
-  > | null>(PERSIST_THRESHOLD_OVERRIDE_FLAG, {})
+  const overrides = {}
   const override = overrides?.[toolName]
   if (
     typeof override === 'number' &&
@@ -285,9 +282,6 @@ async function maybePersistLargeToolResult(
   // shell commands, MCP servers returning content:[], REPL statements, etc.).
   // Inject a short marker so the model always has something to react to.
   if (isToolResultContentEmpty(content)) {
-    logEvent('tengu_tool_empty_result', {
-      toolName: sanitizeToolNameForAnalytics(toolName),
-    })
     return {
       ...toolResultBlock,
       content: `(${toolName} completed with no output)`,
@@ -321,14 +315,6 @@ async function maybePersistLargeToolResult(
   const message = buildLargeToolResultMessage(result)
 
   // Log analytics
-  logEvent('tengu_tool_result_persisted', {
-    toolName: sanitizeToolNameForAnalytics(toolName),
-    originalSizeBytes: result.originalSize,
-    persistedSizeBytes: message.length,
-    estimatedOriginalTokens: Math.ceil(result.originalSize / BYTES_PER_TOKEN),
-    estimatedPersistedTokens: Math.ceil(message.length / BYTES_PER_TOKEN),
-    thresholdUsed: threshold,
-  })
 
   return { ...toolResultBlock, content: message }
 }
@@ -419,10 +405,7 @@ export function cloneContentReplacementState(
  * so a flag served as null/string/NaN leaks through.
  */
 export function getPerMessageBudgetLimit(): number {
-  const override = getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
-    'tengu_hawthorn_window',
-    null,
-  )
+  const override = null
   if (
     typeof override === 'number' &&
     Number.isFinite(override) &&
@@ -448,10 +431,7 @@ export function provisionContentReplacementState(
   initialMessages?: Message[],
   initialContentReplacements?: ContentReplacementRecord[],
 ): ContentReplacementState | undefined {
-  const enabled = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_hawthorn_steeple',
-    false,
-  )
+  const enabled = false
   if (!enabled) return undefined
   if (initialMessages) {
     return reconstructContentReplacementState(
@@ -872,16 +852,6 @@ export async function enforceToolResultBudget(
       toolUseId: candidate.toolUseId,
       replacement: replacement.content,
     })
-    logEvent('tengu_tool_result_persisted_message_budget', {
-      originalSizeBytes: replacement.originalSize,
-      persistedSizeBytes: replacement.content.length,
-      estimatedOriginalTokens: Math.ceil(
-        replacement.originalSize / BYTES_PER_TOKEN,
-      ),
-      estimatedPersistedTokens: Math.ceil(
-        replacement.content.length / BYTES_PER_TOKEN,
-      ),
-    })
   }
 
   if (replacementMap.size === 0) {
@@ -894,12 +864,6 @@ export async function enforceToolResultBudget(
         `across ${messagesOverBudget} over-budget message(s), ` +
         `shed ~${formatFileSize(replacedSize)}, ${reappliedCount} re-applied`,
     )
-    logEvent('tengu_message_level_tool_result_budget_enforced', {
-      resultsPersisted: newlyReplaced.length,
-      messagesOverBudget,
-      replacedSizeBytes: replacedSize,
-      reapplied: reappliedCount,
-    })
   }
 
   return {

@@ -50,11 +50,6 @@ async function checkEndpoints(): Promise<PreflightCheckResult> {
     const failedResult = results.find(result => !result.success);
     if (failedResult) {
       // Log failure to Statsig
-      logEvent('tengu_preflight_check_failed', {
-        isConnectivityError: false,
-        hasErrorMessage: !!failedResult.error,
-        isSSLError: !!failedResult.sslHint
-      });
     }
     return failedResult || {
       success: true
@@ -63,9 +58,6 @@ async function checkEndpoints(): Promise<PreflightCheckResult> {
     logError(error as Error);
 
     // Log to Statsig
-    logEvent('tengu_preflight_check_failed', {
-      isConnectivityError: true
-    });
     return {
       success: false,
       error: `Connectivity check error: ${error instanceof Error ? (error as ErrnoException).code || error.message : String(error)}`

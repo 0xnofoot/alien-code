@@ -106,13 +106,9 @@ function ToggleTagAndClose(t0) {
       setSessionId(id);
       const currentTag = getCurrentSessionTag(id);
       if (currentTag === normalizedTag) {
-        logEvent("tengu_tag_command_remove_prompt", {});
         setShowConfirm(true);
       } else {
         const isReplacing = !!currentTag;
-        logEvent("tengu_tag_command_add", {
-          is_replacing: isReplacing
-        });
         (async () => {
           const fullPath = getTranscriptPath();
           await saveTag(id, normalizedTag, fullPath);
@@ -136,7 +132,6 @@ function ToggleTagAndClose(t0) {
     let t4;
     if ($[6] !== normalizedTag || $[7] !== onDone || $[8] !== sessionId) {
       t4 = async () => {
-        logEvent("tengu_tag_command_remove_confirmed", {});
         const fullPath_0 = getTranscriptPath();
         await saveTag(sessionId, "", fullPath_0);
         onDone(`Removed tag ${chalk.cyan(`#${normalizedTag}`)}`, {
@@ -153,7 +148,6 @@ function ToggleTagAndClose(t0) {
     let t5;
     if ($[10] !== normalizedTag || $[11] !== onDone) {
       t5 = () => {
-        logEvent("tengu_tag_command_remove_cancelled", {});
         onDone(`Kept tag ${chalk.cyan(`#${normalizedTag}`)}`, {
           display: "system"
         });

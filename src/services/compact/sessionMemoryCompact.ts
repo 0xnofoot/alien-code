@@ -106,9 +106,7 @@ async function initSessionMemoryCompactConfig(): Promise<void> {
   configInitialized = true
 
   // Load config from GrowthBook, merging with defaults
-  const remoteConfig = await getDynamicConfig_BLOCKS_ON_INIT<
-    Partial<SessionMemoryCompactConfig>
-  >('tengu_sm_compact_config', {})
+  const remoteConfig = await {}
 
   // Only use remote values if they are explicitly set (positive numbers)
   // This ensures sensible defaults aren't overridden by zero values
@@ -409,23 +407,12 @@ export function shouldUseSessionMemoryCompaction(): boolean {
     return false
   }
 
-  const sessionMemoryFlag = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_session_memory',
-    false,
-  )
-  const smCompactFlag = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_sm_compact',
-    false,
-  )
+  const sessionMemoryFlag = false
+  const smCompactFlag = false
   const shouldUse = sessionMemoryFlag && smCompactFlag
 
   // Log flag states for debugging (ant-only to avoid noise in external logs)
   if (process.env.USER_TYPE === 'ant') {
-    logEvent('tengu_sm_compact_flag_check', {
-      tengu_session_memory: sessionMemoryFlag,
-      tengu_sm_compact: smCompactFlag,
-      should_use: shouldUse,
-    })
   }
 
   return shouldUse
@@ -531,14 +518,12 @@ export async function trySessionMemoryCompaction(
 
   // No session memory file exists at all
   if (!sessionMemory) {
-    logEvent('tengu_sm_compact_no_session_memory', {})
     return null
   }
 
   // Session memory exists but matches the template (no actual content extracted)
   // Fall back to legacy compact behavior
   if (await isSessionMemoryEmpty(sessionMemory)) {
-    logEvent('tengu_sm_compact_empty_template', {})
     return null
   }
 
@@ -555,14 +540,12 @@ export async function trySessionMemoryCompaction(
         // The summarized message ID doesn't exist in current messages
         // This can happen if messages were modified - fall back to legacy compact
         // since we can't determine the boundary between summarized and unsummarized messages
-        logEvent('tengu_sm_compact_summarized_id_not_found', {})
         return null
       }
     } else {
       // Resumed session case: session memory has content but we don't know the boundary
       // Set lastSummarizedIndex to last message so startIndex becomes messages.length (no messages kept initially)
       lastSummarizedIndex = messages.length - 1
-      logEvent('tengu_sm_compact_resumed_session', {})
     }
 
     // Calculate the starting index for messages to keep
@@ -606,10 +589,6 @@ export async function trySessionMemoryCompaction(
       autoCompactThreshold !== undefined &&
       postCompactTokenCount >= autoCompactThreshold
     ) {
-      logEvent('tengu_sm_compact_threshold_exceeded', {
-        postCompactTokenCount,
-        autoCompactThreshold,
-      })
       return null
     }
 
@@ -621,7 +600,6 @@ export async function trySessionMemoryCompaction(
   } catch (error) {
     // Use logEvent instead of logError since errors here are expected
     // (e.g., file not found, path issues) and shouldn't go to error logs
-    logEvent('tengu_sm_compact_error', {})
     if (process.env.USER_TYPE === 'ant') {
       logForDebugging(`Session memory compaction error: ${errorMessage(error)}`)
     }

@@ -130,26 +130,6 @@ function logSpeculation(
   boundary: CompletionBoundary | null,
   extras?: Record<string, string | number | boolean | undefined>,
 ): void {
-  logEvent('tengu_speculation', {
-    speculation_id:
-      id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    outcome:
-      outcome as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    duration_ms: Date.now() - startTime,
-    suggestion_length: suggestionLength,
-    tools_executed: countToolsInMessages(messages),
-    completed: boundary !== null,
-    boundary_type: boundary?.type as
-      | AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      | undefined,
-    boundary_tool: getBoundaryTool(boundary) as
-      | AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      | undefined,
-    boundary_detail: getBoundaryDetail(boundary) as
-      | AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      | undefined,
-    ...extras,
-  })
 }
 
 function countToolsInMessages(messages: Message[]): number {

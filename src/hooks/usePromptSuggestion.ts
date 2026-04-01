@@ -117,44 +117,6 @@ export function usePromptSuggestion({
       const wasAccepted = tabWasPressed || finalInput === suggestionText
       const timeMs = wasAccepted ? acceptedAt || Date.now() : Date.now()
 
-      logEvent('tengu_prompt_suggestion', {
-        source:
-          'cli' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        outcome: (wasAccepted
-          ? 'accepted'
-          : 'ignored') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        prompt_id:
-          promptId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(generationRequestId && {
-          generationRequestId:
-            generationRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(wasAccepted && {
-          acceptMethod: (tabWasPressed
-            ? 'tab'
-            : 'enter') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-        ...(wasAccepted && {
-          timeToAcceptMs: timeMs - shownAt,
-        }),
-        ...(!wasAccepted && {
-          timeToIgnoreMs: timeMs - shownAt,
-        }),
-        ...(firstKeystrokeAt.current > 0 && {
-          timeToFirstKeystrokeMs: firstKeystrokeAt.current - shownAt,
-        }),
-        wasFocusedWhenShown: wasFocusedWhenShown.current,
-        similarity:
-          Math.round(
-            (finalInput.length / (suggestionText?.length || 1)) * 100,
-          ) / 100,
-        ...(process.env.USER_TYPE === 'ant' && {
-          suggestion:
-            suggestionText as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          userInput:
-            finalInput as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        }),
-      })
       if (!opts?.skipReset) resetSuggestion()
     },
     [

@@ -1,32 +1,31 @@
-# Claude Code — Leaked Source (2026-03-31)
+# Claude Code — 可构建源码（基于 2026-03-31 泄露版本）
 
-> **On March 31, 2026, the full source code of Anthropic's Claude Code CLI was leaked** via a `.map` file exposed in their npm registry.
+> **2026 年 3 月 31 日，Anthropic 的 Claude Code CLI 完整源码通过 npm 包中暴露的 `.map` 文件泄露。**
+> 本 fork 在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，使其可以脱离 Anthropic 内部基础设施独立编译运行。
 
 ---
 
-## How It Leaked
+## 源码来源
 
-[Chaofan Shou (@Fried_rice)](https://x.com/Fried_rice) discovered the leak and posted it publicly:
+[Chaofan Shou (@Fried_rice)](https://x.com/Fried_rice) 发现了该泄露并公开发布：
 
 > **"Claude code source code has been leaked via a map file in their npm registry!"**
 >
 > — [@Fried_rice, March 31, 2026](https://x.com/Fried_rice/status/2038894956459290963)
 
-The source map file in the published npm package contained a reference to the full, unobfuscated TypeScript source, which was downloadable as a zip archive from Anthropic's R2 storage bucket.
+npm 包中的 source map 文件包含了指向完整未混淆 TypeScript 源码的引用，可从 Anthropic 的 R2 存储桶下载为 zip 压缩包。
 
 ---
 
-## Overview
+## 概览
 
-Claude Code is Anthropic's official CLI tool that lets you interact with Claude directly from the terminal to perform software engineering tasks — editing files, running commands, searching codebases, managing git workflows, and more.
+Claude Code 是 Anthropic 的官方 CLI 工具，允许用户直接在终端与 Claude 交互，完成软件工程任务——编辑文件、执行命令、搜索代码库、管理 Git 工作流等。
 
-This repository contains the leaked `src/` directory.
-
-- **Leaked on**: 2026-03-31
-- **Language**: TypeScript
-- **Runtime**: Bun
-- **Terminal UI**: React + [Ink](https://github.com/vadimdemedes/ink) (React for CLI)
-- **Scale**: ~1,900 files, 512,000+ lines of code
+- **泄露日期**: 2026-03-31
+- **语言**: TypeScript（strict 模式）
+- **构建运行时**: Bun
+- **终端 UI**: React + [Ink](https://github.com/vadimdemedes/ink)
+- **规模**: ~1,900 文件，512,000+ 行代码
 
 ---
 
@@ -76,7 +75,195 @@ src/
 
 ---
 
-## Core Architecture
+## 构建指南
+
+### 前置要求
+
+| 工具 | 最低版本 | 用途 |
+|------|----------|------|
+| [Bun](https://bun.sh) | 1.2+ | 构建器（打包 + TypeScript 编译） |
+| Node.js | 18+ | 运行构建产物 |
+
+> 构建过程**仅**需要 Bun；运行产物仅需要 Node.js，无需 Bun。
+
+### 快速开始
+
+```bash
+# 1. 克隆仓库
+git clone <repo-url>
+cd claude-code
+
+# 2. 安装依赖
+bun install
+
+# 3. 生产构建（输出到 package/new-claude.js）
+VERSION=2.1.88 bun run build.ts
+
+# 4. 验证构建产物
+node package/new-claude.js --version
+# → 2.1.88 (Claude Code)
+
+# 5. 使用
+ANTHROPIC_API_KEY=sk-ant-xxx node package/new-claude.js --print "你好"
+```
+
+### 开发构建
+
+开发模式不进行代码压缩，并生成 source map 便于调试：
+
+```bash
+VERSION=2.1.88 bun run build.ts --dev
+```
+
+### 构建系统详解
+
+构建入口是 `build.ts`，使用 **Bun 的原生打包 API**（`Bun.build()`）将整个 TypeScript 项目打包为单一 ESM 文件。
+
+#### 构建流程
+
+```
+src/entrypoints/cli.tsx          ← 构建入口
+        ↓
+  Bun.build() 插件管道
+        ↓
+  ┌─────────────────────────────────┐
+  │  Plugin 1: js-to-ts-abs        │  .js 扩展名 → .ts 文件解析
+  │  Plugin 2: src-alias           │  src/* 绝对路径解析
+  │  Plugin 3: explicit-stubs      │  内部私有包 → stubs/ 替换
+  │  Plugin 4: auto-stub-missing   │  其余缺失模块 → 空实现
+  └─────────────────────────────────┘
+        ↓
+  Feature Flag DCE（死代码消除）
+        ↓
+  Bun DCE 产物修复（语法修补）
+        ↓
+package/new-claude.js            ← 最终产物（~15 MB ESM）
+```
+
+#### 插件 1：`js-to-ts-abs` — .js → .ts 路径重写
+
+源码中所有模块 import 均使用 `.js` 扩展名（TypeScript 的 ESM 约定），但磁盘上的实际文件是 `.ts`。该插件在解析阶段将 `foo.js` → `foo.ts`（或 `foo/index.ts`）。
+
+#### 插件 2：`src-alias` — 绝对路径别名
+
+源码中大量使用 `src/services/...` 形式的绝对 import（非相对路径）。该插件将其解析为 `<项目根>/src/services/...`，同时完成 `.js` → `.ts` 的扩展名重写。
+
+#### 插件 3：`explicit-stubs` — 私有包替换
+
+Anthropic 内部包在公共 npm 上不存在，构建时用 `stubs/` 目录下的替代实现覆盖：
+
+| 原始包 | Stub 文件 | 说明 |
+|--------|-----------|------|
+| `@ant/claude-for-chrome-mcp` | `stubs/@ant/claude-for-chrome-mcp/` | Chrome 集成（空实现） |
+| `@ant/computer-use-mcp` | `stubs/@ant/computer-use-mcp/` | 计算机使用 MCP（空实现） |
+| `@ant/computer-use-input` | `stubs/@ant/computer-use-input/` | 输入控制（空实现） |
+| `@ant/computer-use-swift` | `stubs/@ant/computer-use-swift/` | macOS Swift 桥接（空实现） |
+| `color-diff-napi` | `stubs/color-diff-napi/` | 重定向到同仓库 TS 纯实现 |
+| `audio-capture-napi` | `stubs/audio-capture-napi/` | 音频捕获（空实现） |
+| `modifiers-napi` | `stubs/modifiers-napi/` | 键盘修饰键（空实现） |
+| `bun:bundle` | `stubs/bun-bundle/` | `feature()` DCE 函数（运行时返回 `false`） |
+| `bun:ffi` | `stubs/bun-ffi/` | Bun FFI API（空实现） |
+
+#### 插件 4：`auto-stub-missing` — 缺失模块兜底
+
+对于 `stubs/` 中没有显式配置的其余缺失内部模块，自动注入一个通用空 stub：
+
+```typescript
+export default ""
+export const name = ""
+export const description = ""
+export const prompt = ""
+```
+
+#### Feature Flag 死代码消除（DCE）
+
+`build.ts` 将 `featureFlags` 映射表中的所有标志注入为编译时常量（`$$bunfeature_XXX`）。源码中通过 `feature('FLAG_NAME')` 调用的条件分支在打包阶段被彻底折叠消除：
+
+```typescript
+// 源码
+const voiceCmd = feature('VOICE_MODE') ? require('./voice/index.js') : null
+
+// VOICE_MODE = false → 打包后完全消除，不包含 voice 相关代码
+```
+
+当前启用的主要 Feature Flag（`true`）：
+
+| Flag | 功能 |
+|------|------|
+| `BRIDGE_MODE` | IDE 桥接（VS Code / JetBrains） |
+| `FORK_SUBAGENT` | 子 Agent 分叉 |
+| `BUILTIN_EXPLORE_PLAN_AGENTS` | 内置 Explore / Plan Agent |
+| `MCP_SKILLS` | MCP Skill 系统 |
+| `MCP_RICH_OUTPUT` | MCP 富文本输出 |
+| `BASH_CLASSIFIER` | Bash 命令分类器 |
+| `ULTRATHINK` | 扩展思考模式 |
+| `TOKEN_BUDGET` | Token 预算控制 |
+| `HISTORY_PICKER` | 历史会话选择器 |
+| `REACTIVE_COMPACT` | 响应式上下文压缩 |
+| `HOOK_PROMPTS` | Hook 系统 |
+
+#### Bun DCE 产物修复
+
+Bun 的死代码消除在处理 `void import('./devtools.js')` 形式的惰性动态 import 时存在 Bug，会生成语法无效的 JS：
+
+```javascript
+// Bun DCE Bug 产物（无效语法）
+Promise.resolve().then(() => )
+
+// build.ts 修复后
+Promise.resolve()
+```
+
+`build.ts` 在写入文件前用正则表达式自动修复该问题。
+
+### 本 Fork 相对原始泄露版本的改动
+
+原始泄露源码无法直接构建，本 fork 做了以下修改：
+
+#### 构建修复
+- 添加 `build.ts` 构建脚本（原始版本依赖 Anthropic 内部构建系统）
+- 添加 `stubs/` 目录替换私有 npm 包
+- 修复 `--print` 模式永久挂起问题（sandbox 进程未退出）
+
+#### 私有依赖剥离
+- 删除 `src/services/analytics/datadog.ts` 等 Datadog 上报代码
+- 删除 `src/services/analytics/firstPartyEventLogger.ts` 等 1P 遥测代码
+- 将 `src/services/analytics/growthbook.ts` 替换为返回默认值的空实现（GrowthBook 需要 Anthropic 内部服务）
+- 将 `src/services/analytics/index.ts` 的 `logEvent()` 替换为空实现
+- 删除 `src/commands/login/` 和 `src/commands/logout/`（OAuth 流程依赖 Anthropic 内部 OAuth 服务器）
+- 清理全库 1,083 处 `logEvent` 调用、199 处 GrowthBook feature flag 调用
+
+#### 保留的核心功能
+以下功能**完整保留**，未做任何修改：
+- `ANTHROPIC_API_KEY` → `getAnthropicApiKey()` → `getAuthHeaders()` → Anthropic SDK → API 调用
+- 所有 40+ 工具（BashTool、FileReadTool、GrepTool、AgentTool 等）
+- 所有斜杠命令（`/commit`、`/review`、`/compact` 等，login/logout 除外）
+- MCP 服务器集成
+- 子 Agent 与多 Agent 协调
+- Skill 系统
+- IDE 桥接（VS Code / JetBrains）
+- 权限系统、Hook 系统
+
+### 故障排查
+
+**构建报 `File not found` 错误**
+
+检查缺失文件是否在 `stubs/` 中有对应条目，或在 `build.ts` 的 `EXPLICIT_STUBS` 中补充映射。
+
+**运行时报 `Cannot find module`**
+
+构建产物是 ESM 格式，需要 Node.js 18+：
+```bash
+node --version  # 需要 v18+
+```
+
+**`--print` 模式挂起不退出**
+
+确认使用的是本 fork 的构建产物（已修复 sandbox 退出问题）。
+
+---
+
+## 目录结构
 
 ### 1. Tool System (`src/tools/`)
 
@@ -120,7 +307,7 @@ User-facing slash commands invoked with `/` prefix.
 | `/mcp` | MCP server management |
 | `/config` | Settings management |
 | `/doctor` | Environment diagnostics |
-| `/login` / `/logout` | Authentication |
+| `/login` / `/logout` | 已移除（OAuth 依赖 Anthropic 内部服务） |
 | `/memory` | Persistent memory management |
 | `/skills` | Skill management |
 | `/tasks` | Task management |
@@ -143,7 +330,7 @@ User-facing slash commands invoked with `/` prefix.
 | `mcp/` | Model Context Protocol server connection and management |
 | `oauth/` | OAuth 2.0 authentication flow |
 | `lsp/` | Language Server Protocol manager |
-| `analytics/` | GrowthBook-based feature flags and analytics |
+| `analytics/` | Feature flags（本 fork 已替换为空实现） |
 | `plugins/` | Plugin loader |
 | `compact/` | Conversation context compression |
 | `policyLimits/` | Organization policy limits |
@@ -216,9 +403,9 @@ Commander.js-based CLI parser + React/Ink renderer initialization. At startup, p
 | Code Search | [ripgrep](https://github.com/BurntSushi/ripgrep) (via GrepTool) |
 | Protocols | [MCP SDK](https://modelcontextprotocol.io), LSP |
 | API | [Anthropic SDK](https://docs.anthropic.com) |
-| Telemetry | OpenTelemetry + gRPC |
-| Feature Flags | GrowthBook |
-| Auth | OAuth 2.0, JWT, macOS Keychain |
+| Telemetry | OpenTelemetry + gRPC（本 fork 已剥离） |
+| Feature Flags | GrowthBook（本 fork 已替换为编译时常量） |
+| Auth | `ANTHROPIC_API_KEY` 环境变量 |
 
 ---
 
@@ -254,4 +441,4 @@ Built-in and third-party plugins are loaded through the `plugins/` subsystem.
 
 ## Disclaimer
 
-This repository archives source code that was leaked from Anthropic's npm registry on **2026-03-31**. All original source code is the property of [Anthropic](https://www.anthropic.com).
+本仓库归档了 **2026-03-31** 从 Anthropic npm 包中泄露的源码，并在此基础上进行了构建适配修改。所有原始源码的版权归 [Anthropic](https://www.anthropic.com) 所有。

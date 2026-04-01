@@ -72,10 +72,6 @@ export function countLinesChanged(
   getLocCounter()?.add(numAdditions, { type: 'added' })
   getLocCounter()?.add(numRemovals, { type: 'removed' })
 
-  logEvent('tengu_file_changed', {
-    lines_added: numAdditions,
-    lines_removed: numRemovals,
-  })
 }
 
 export function getPatchFromContents({

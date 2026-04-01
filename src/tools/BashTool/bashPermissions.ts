@@ -124,23 +124,6 @@ function logClassifierResultForAnts(
     return
   }
 
-  logEvent('tengu_internal_bash_classifier_result', {
-    behavior:
-      behavior as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    descriptions: jsonStringify(
-      descriptions,
-    ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    matches: result.matches,
-    matchedDescription: (result.matchedDescription ??
-      '') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    confidence:
-      result.confidence as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    reason:
-      result.reason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    // Note: command contains code/filepaths - this is ANT-ONLY so it's OK
-    command:
-      command as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 }
 
 /**
@@ -1681,7 +1664,7 @@ export async function bashToolHasPermission(
   // GrowthBook killswitch for shadow mode — when off, skip the native parse
   // entirely. Computed once; feature() must stay inline in the ternary below.
   const shadowEnabled = feature('TREE_SITTER_BASH_SHADOW')
-    ? getFeatureValue_CACHED_MAY_BE_STALE('tengu_birch_trellis', true)
+    ? true
     : false
   // Parse once here; the resulting AST feeds both parseForSecurityFromAst
   // and bashToolCheckCommandOperatorPermissions.
@@ -1724,15 +1707,6 @@ export async function bashToolHasPermission(
         (tsSubs.length !== legacySubs.length ||
           tsSubs.some((s, i) => s !== legacySubs[i]))
     }
-    logEvent('tengu_tree_sitter_shadow', {
-      available,
-      astTooComplex: tooComplex,
-      astSemanticFail: semanticFail,
-      subsDiffer,
-      injectionCheckDisabled,
-      killswitchOff: !shadowEnabled,
-      cmdOverLength: input.command.length > 10000,
-    })
     // Always force legacy — shadow mode is observational only.
     astResult = { kind: 'parse-unavailable' }
     astRoot = null
@@ -1749,9 +1723,6 @@ export async function bashToolHasPermission(
       type: 'other' as const,
       reason: astResult.reason,
     }
-    logEvent('tengu_bash_ast_too_complex', {
-      nodeTypeId: nodeTypeId(astResult.nodeType),
-    })
     return {
       behavior: 'ask',
       decisionReason,
@@ -2359,10 +2330,6 @@ export async function bashToolHasPermission(
       r => r.behavior !== 'passthrough',
     )
     if (divergenceCount > 0) {
-      logEvent('tengu_tree_sitter_security_divergence', {
-        quoteContextDivergence: true,
-        count: divergenceCount,
-      })
     }
   }
   if (

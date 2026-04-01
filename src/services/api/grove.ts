@@ -336,10 +336,6 @@ export async function checkGroveForNonInteractive(): Promise<void> {
   if (shouldShowGrove) {
     // shouldShowGrove is only true if both API calls succeeded
     const config = configResult.success ? configResult.data : null
-    logEvent('tengu_grove_print_viewed', {
-      dismissable:
-        config?.notice_is_grace_period as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
     if (config === null || config.notice_is_grace_period) {
       // Grace period is still active - show informational message and continue
       writeToStderr(
