@@ -35,18 +35,11 @@ export function Onboarding({
   const [oauthEnabled] = useState(() => isAnthropicAuthEnabled());
   const [theme, setTheme] = useTheme();
   useEffect(() => {
-    logEvent('tengu_began_setup', {
-      oauthEnabled
-    });
   }, [oauthEnabled]);
   function goToNextStep() {
     if (currentStepIndex < steps.length - 1) {
       const nextIndex = currentStepIndex + 1;
       setCurrentStepIndex(nextIndex);
-      logEvent('tengu_onboarding_step', {
-        oauthEnabled,
-        stepId: steps[nextIndex]?.id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
     } else {
       onDone();
     }

@@ -101,9 +101,6 @@ export const EnterWorktreeTool: Tool<InputSchema, Output> = buildTool({
     clearMemoryFileCaches()
     getPlansDirectory.cache.clear?.()
 
-    logEvent('tengu_worktree_created', {
-      mid_session: true,
-    })
 
     const branchInfo = worktreeSession.worktreeBranch
       ? ` on branch ${worktreeSession.worktreeBranch}`

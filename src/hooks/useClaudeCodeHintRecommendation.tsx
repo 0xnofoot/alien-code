@@ -68,11 +68,6 @@ export function useClaudeCodeHintRecommendation() {
         return;
       }
       markHintPluginShown(recommendation.pluginId);
-      logEvent("tengu_plugin_hint_response", {
-        _PROTO_plugin_name: recommendation.pluginName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-        _PROTO_marketplace_name: recommendation.marketplaceName as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-        response: response as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       bb15: switch (response) {
         case "yes":
           {

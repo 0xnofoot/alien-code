@@ -158,10 +158,6 @@ function Install({
         }
 
         // Log success event
-        logEvent('tengu_claude_install_command', {
-          has_version: result.latestVersion ? 1 : 0,
-          forced: force ? 1 : 0
-        });
 
         // If user explicitly specified a channel, save it to settings
         if (target === 'latest' || target === 'stable') {

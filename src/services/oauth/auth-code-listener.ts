@@ -87,7 +87,6 @@ export class AuthCodeListener {
     if (customHandler) {
       customHandler(this.pendingResponse, scopes)
       this.pendingResponse = null
-      logEvent('tengu_oauth_automatic_redirect', { custom_handler: true })
       return
     }
 
@@ -101,7 +100,6 @@ export class AuthCodeListener {
     this.pendingResponse.end()
     this.pendingResponse = null
 
-    logEvent('tengu_oauth_automatic_redirect', {})
   }
 
   /**
@@ -119,7 +117,6 @@ export class AuthCodeListener {
     this.pendingResponse.end()
     this.pendingResponse = null
 
-    logEvent('tengu_oauth_automatic_redirect_error', {})
   }
 
   private startLocalListener(onReady: () => Promise<void>): void {

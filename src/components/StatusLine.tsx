@@ -261,10 +261,6 @@ function StatusLineInner({
   useEffect(() => {
     const statusLine = settings?.statusLine;
     if (statusLine) {
-      logEvent('tengu_status_line_mount', {
-        command_length: statusLine.command.length,
-        padding: statusLine.padding
-      });
       // Log if status line is configured but disabled by disableAllHooks
       if (settings.disableAllHooks === true) {
         logForDebugging('Status line is configured but disableAllHooks is true', {

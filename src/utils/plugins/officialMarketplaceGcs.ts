@@ -156,16 +156,6 @@ export async function fetchOfficialMarketplaceFromGcs(
     // tengu_plugin_remote_fetch schema shared with the telemetry PR
     // (.daisy/inc-5046/index.md) — adds source:'marketplace_gcs'. All string
     // values below are static enums or a git SHA — not code/filepaths/PII.
-    logEvent('tengu_plugin_remote_fetch', {
-      source: 'marketplace_gcs' as SafeString,
-      host: 'downloads.claude.ai' as SafeString,
-      is_official: true,
-      outcome: outcome as SafeString,
-      duration_ms: Math.round(performance.now() - start),
-      ...(bytes !== undefined && { bytes }),
-      ...(sha && { sha: sha as SafeString }),
-      ...(errKind && { error_kind: errKind as SafeString }),
-    })
   }
 }
 

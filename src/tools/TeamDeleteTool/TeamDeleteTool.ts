@@ -108,10 +108,6 @@ export const TeamDeleteTool: Tool<InputSchema, Output> = buildTool({
       // Clear leader team name so getTaskListId() falls back to session ID
       clearLeaderTeamName()
 
-      logEvent('tengu_team_deleted', {
-        team_name:
-          teamName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
     }
 
     // Clear team context and inbox from app state

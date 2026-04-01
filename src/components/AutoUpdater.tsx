@@ -131,22 +131,7 @@ export function AutoUpdater({
       }
       onChangeIsUpdating(false);
       if (installStatus === 'success') {
-        logEvent('tengu_auto_updater_success', {
-          fromVersion: currentVersion as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          toVersion: latestVersion as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          durationMs: Date.now() - startTime,
-          wasMigrated: updateMethod === 'local',
-          installationType: installationType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
       } else {
-        logEvent('tengu_auto_updater_fail', {
-          fromVersion: currentVersion as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          attemptedVersion: latestVersion as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          status: installStatus as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          durationMs: Date.now() - startTime,
-          wasMigrated: updateMethod === 'local',
-          installationType: installationType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        });
       }
       onAutoUpdaterResult({
         version: latestVersion,

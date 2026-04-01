@@ -240,7 +240,6 @@ export function createChromeContext(
           }
         }
       }
-      logEvent(eventName, safeMetadata)
     },
   }
 }

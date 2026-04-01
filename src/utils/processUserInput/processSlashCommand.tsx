@@ -62,17 +62,6 @@ const MCP_SETTLE_TIMEOUT_MS = 10_000;
 async function executeForkedSlashCommand(command: CommandBase & PromptCommand, args: string, context: ProcessUserInputContext, precedingInputBlocks: ContentBlockParam[], setToolJSX: SetToolJSXFn, canUseTool: CanUseToolFn): Promise<SlashCommandResult> {
   const agentId = createAgentId();
   const pluginMarketplace = command.pluginInfo ? parsePluginIdentifier(command.pluginInfo.repository).marketplace : undefined;
-  logEvent('tengu_slash_command_forked', {
-    command_name: command.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    ...(command.pluginInfo && {
-      _PROTO_plugin_name: command.pluginInfo.pluginManifest.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED,
-      ...(pluginMarketplace && {
-        _PROTO_marketplace_name: pluginMarketplace as AnalyticsMetadata_I_VERIFIED_THIS_IS_PII_TAGGED
-      }),
-      ...buildPluginCommandTelemetryFields(command.pluginInfo)
-    })
-  });
   const {
     skillContent,
     modifiedGetAppState,
@@ -309,7 +298,6 @@ export function looksLikeCommand(commandName: string): boolean {
 export async function processSlashCommand(inputString: string, precedingInputBlocks: ContentBlockParam[], imageContentBlocks: ContentBlockParam[], attachmentMessages: AttachmentMessage[], context: ProcessUserInputContext, setToolJSX: SetToolJSXFn, uuid?: string, isAlreadyProcessing?: boolean, canUseTool?: CanUseToolFn): Promise<ProcessUserInputBaseResult> {
   const parsed = parseSlashCommand(inputString);
   if (!parsed) {
-    logEvent('tengu_input_slash_missing', {});
     const errorMessage = 'Commands are in the form `/command [args]`';
     return {
       messages: [createSyntheticUserCaveatMessage(), ...attachmentMessages, createUserMessage({
@@ -341,9 +329,6 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
       // Not a file path — treat as command name
     }
     if (looksLikeCommand(commandName) && !isFilePath) {
-      logEvent('tengu_input_slash_invalid', {
-        input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       const unknownMessage = `Unknown skill: ${commandName}`;
       return {
         messages: [createSyntheticUserCaveatMessage(), ...attachmentMessages, createUserMessage({
@@ -361,7 +346,6 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     }
     const promptId = randomUUID();
     setPromptId(promptId);
-    logEvent('tengu_input_prompt', {});
     // Log user prompt event for OTLP
     void logOTelEvent('user_prompt', {
       prompt_length: String(inputString.length),
@@ -424,22 +408,6 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
       }
       Object.assign(eventData, buildPluginCommandTelemetryFields(returnedCommand.pluginInfo));
     }
-    logEvent('tengu_input_command', {
-      ...eventData,
-      invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...("external" === 'ant' && {
-        skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        ...(returnedCommand.type === 'prompt' && {
-          skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.loadedFrom && {
-          skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        }),
-        ...(returnedCommand.kind && {
-          skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-        })
-      })
-    });
     return {
       messages: [],
       shouldQuery: false,
@@ -454,9 +422,6 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     // Don't log as invalid if it looks like a common file path
     const looksLikeFilePath = inputString.startsWith('/var') || inputString.startsWith('/tmp') || inputString.startsWith('/private');
     if (!looksLikeFilePath) {
-      logEvent('tengu_input_slash_invalid', {
-        input: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
     }
     return {
       messages: [createSyntheticUserCaveatMessage(), ...newMessages],
@@ -492,22 +457,6 @@ export async function processSlashCommand(inputString: string, precedingInputBlo
     }
     Object.assign(eventData, buildPluginCommandTelemetryFields(returnedCommand.pluginInfo));
   }
-  logEvent('tengu_input_command', {
-    ...eventData,
-    invocation_trigger: 'user-slash' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    ...("external" === 'ant' && {
-      skill_name: commandName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...(returnedCommand.type === 'prompt' && {
-        skill_source: returnedCommand.source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.loadedFrom && {
-        skill_loaded_from: returnedCommand.loadedFrom as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      }),
-      ...(returnedCommand.kind && {
-        skill_kind: returnedCommand.kind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      })
-    })
-  });
 
   // Check if this is a compact result which handle their own synthetic caveat message ordering
   const isCompactResult = newMessages.length > 0 && newMessages[0] && isCompactBoundaryMessage(newMessages[0]);

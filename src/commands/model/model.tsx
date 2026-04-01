@@ -27,9 +27,6 @@ function ModelPickerWrapper(t0) {
   let t1;
   if ($[0] !== mainLoopModel || $[1] !== onDone) {
     t1 = function handleCancel() {
-      logEvent("tengu_model_command_menu", {
-        action: "cancel" as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       const displayModel = renderModelLabel(mainLoopModel);
       onDone(`Kept model as ${chalk.bold(displayModel)}`, {
         display: "system"
@@ -45,11 +42,6 @@ function ModelPickerWrapper(t0) {
   let t2;
   if ($[3] !== isFastMode || $[4] !== mainLoopModel || $[5] !== onDone || $[6] !== setAppState) {
     t2 = function handleSelect(model, effort) {
-      logEvent("tengu_model_command_menu", {
-        action: model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        from_model: mainLoopModel as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        to_model: model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-      });
       setAppState(prev => ({
         ...prev,
         mainLoopModel: model,
@@ -271,9 +263,6 @@ function _temp7(s) {
 export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
   args = args?.trim() || '';
   if (COMMON_INFO_ARGS.includes(args)) {
-    logEvent('tengu_model_command_inline_help', {
-      args: args as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     return <ShowModelAndClose onDone={onDone} />;
   }
   if (COMMON_HELP_ARGS.includes(args)) {
@@ -283,9 +272,6 @@ export const call: LocalJSXCommandCall = async (onDone, _context, args) => {
     return;
   }
   if (args) {
-    logEvent('tengu_model_command_inline', {
-      args: args as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     return <SetModelAndClose args={args} onDone={onDone} />;
   }
   return <ModelPickerWrapper onDone={onDone} />;

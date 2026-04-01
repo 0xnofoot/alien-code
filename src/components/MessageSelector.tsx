@@ -135,7 +135,6 @@ export function MessageSelector({
 
   // Log when selector is opened
   useEffect(() => {
-    logEvent('tengu_message_selector_opened', {});
   }, []);
 
   // Helper to restore conversation without confirmation
@@ -155,11 +154,6 @@ export function MessageSelector({
   async function handleSelect(message_0: UserMessage) {
     const index = messages.indexOf(message_0);
     const indexFromEnd = messages.length - 1 - index;
-    logEvent('tengu_message_selector_selected', {
-      index_from_end: indexFromEnd,
-      message_type: message_0.type as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      is_current_prompt: false
-    });
 
     // Do nothing if the message is not found
     if (!messages.includes(message_0)) {
@@ -175,9 +169,6 @@ export function MessageSelector({
     setDiffStatsForRestore(diffStats);
   }
   async function onSelectRestoreOption(option: RestoreOption) {
-    logEvent('tengu_message_selector_restore_option_selected', {
-      option: option as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-    });
     if (!messageToRestore) {
       setError('Message not found.');
       return;
@@ -251,7 +242,6 @@ export function MessageSelector({
       setMessageToRestore(undefined);
       return;
     }
-    logEvent('tengu_message_selector_cancelled', {});
     onClose();
   }, [onClose, messageToRestore, preselectedMessage]);
   const moveUp = useCallback(() => setSelectedIndex(prev => Math.max(0, prev - 1)), []);

@@ -413,15 +413,6 @@ export const loadMarkdownFilesForSubdir = memoize(
       )
     }
 
-    logEvent(`tengu_dir_search`, {
-      durationMs: Date.now() - searchStartTime,
-      managedFilesFound: managedFiles.length,
-      userFilesFound: userFiles.length,
-      projectFilesFound: projectFiles.length,
-      projectDirsSearched: projectDirs.length,
-      subdir:
-        subdir as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
 
     return deduplicatedFiles
   },

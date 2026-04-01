@@ -1316,7 +1316,6 @@ class Project {
           },
         )
       } catch {
-        logEvent('tengu_session_persistence_failed', {})
         logForDebugging('Failed to write transcript as internal event')
       }
       return
@@ -1337,7 +1336,6 @@ class Project {
     )
 
     if (!success) {
-      logEvent('tengu_session_persistence_failed', {})
       gracefulShutdownSync(1, 'other')
     }
   }
@@ -1891,13 +1889,6 @@ function applyPreservedSegmentRelinks(
       // the full pre-compact history. Known cause: mid-turn-yielded
       // attachment pushed to mutableMessages but never recordTranscript'd
       // (SDK subprocess restarted before next turn's qe:420 flush).
-      logEvent('tengu_relink_walk_broken', {
-        tailInTranscript: messages.has(lastSeg.tailUuid),
-        headInTranscript: messages.has(lastSeg.headUuid),
-        anchorInTranscript: messages.has(lastSeg.anchorUuid),
-        walkSteps: walkSeen.size,
-        transcriptSize: messages.size,
-      })
       return
     }
   }
@@ -2032,10 +2023,6 @@ function applySnipRemovals(messages: Map<UUID, TranscriptMessage>): void {
     relinkedCount++
   }
 
-  logEvent('tengu_snip_resume_filtered', {
-    removed_count: removedCount,
-    relinked_count: relinkedCount,
-  })
 }
 
 /**
@@ -2080,7 +2067,6 @@ export function buildConversationChain(
           `Cycle detected in parentUuid chain at message ${currentMsg.uuid}. Returning partial transcript.`,
         ),
       )
-      logEvent('tengu_chain_parent_cycle', {})
       break
     }
     seen.add(currentMsg.uuid)
@@ -2192,9 +2178,6 @@ function recoverOrphanedParallelToolResults(
   }
 
   if (recoveredCount === 0) return chain
-  logEvent('tengu_chain_parallel_tr_recovered', {
-    recovered_count: recoveredCount,
-  })
 
   const result: TranscriptMessage[] = []
   for (const m of chain) {
@@ -2231,13 +2214,6 @@ export function checkResumeConsistency(chain: Message[]): void {
     // The checkpoint was appended AFTER messageCount messages, so its own
     // position should be messageCount (i.e., i === expected).
     const actual = i
-    logEvent('tengu_resume_consistency_delta', {
-      expected,
-      actual,
-      delta: actual - expected,
-      chain_length: chain.length,
-      checkpoint_age_entries: chain.length - 1 - i,
-    })
     return
   }
 }
@@ -2547,13 +2523,6 @@ async function trackSessionBranchingAnalytics(
   const sessionsWithBranches = branchCounts.length
   const totalBranches = branchCounts.reduce((sum, count) => sum + count, 0)
 
-  logEvent('tengu_session_forked_branches_fetched', {
-    total_sessions: sessionIdCounts.size,
-    sessions_with_branches: sessionsWithBranches,
-    max_branches_per_session: Math.max(...branchCounts),
-    avg_branches_per_session: Math.round(totalBranches / sessionsWithBranches),
-    total_transcript_count: logs.length,
-  })
 }
 
 export async function fetchLogs(limit?: number): Promise<LogOption[]> {
@@ -2631,10 +2600,6 @@ export async function saveCustomTitle(
   if (sessionId === getSessionId()) {
     getProject().currentSessionTitle = customTitle
   }
-  logEvent('tengu_session_renamed', {
-    source:
-      source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 }
 
 /**
@@ -2695,7 +2660,6 @@ export async function saveTag(sessionId: UUID, tag: string, fullPath?: string) {
   if (sessionId === getSessionId()) {
     getProject().currentSessionTag = tag
   }
-  logEvent('tengu_session_tagged', {})
 }
 
 /**
@@ -2725,7 +2689,6 @@ export async function linkSessionToPR(
     project.currentSessionPrUrl = prUrl
     project.currentSessionPrRepository = prRepository
   }
-  logEvent('tengu_session_linked_to_pr', { prNumber })
 }
 
 export function getCurrentSessionTag(sessionId: UUID): string | undefined {
@@ -2829,10 +2792,6 @@ export async function saveAgentName(
     getProject().currentSessionAgentName = agentName
     void updateSessionName(agentName)
   }
-  logEvent('tengu_agent_name_set', {
-    source:
-      source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 }
 
 export async function saveAgentColor(
@@ -2850,7 +2809,6 @@ export async function saveAgentColor(
   if (sessionId === getSessionId()) {
     getProject().currentSessionAgentColor = agentColor
   }
-  logEvent('tengu_agent_color_set', {})
 }
 
 /**
@@ -3786,7 +3744,6 @@ export async function loadTranscriptFile(
   }
 
   if (hasCycle) {
-    logEvent('tengu_transcript_parent_cycle', {})
   }
 
   return {

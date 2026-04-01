@@ -362,20 +362,6 @@ function logToolUseToolResultMismatch(
     }
 
     // Log to Statsig
-    logEvent('tengu_tool_use_tool_result_mismatch_error', {
-      toolUseId:
-        toolUseId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      normalizedSequence: normalizedSeq.join(
-        ', ',
-      ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      preNormalizedSequence: preNormalizedSeq.join(
-        ', ',
-      ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      normalizedMessageCount: messagesForAPI.length,
-      originalMessageCount: messages.length,
-      normalizedToolUseIndex: normalizedIndex,
-      originalToolUseIndex: originalIndex,
-    })
   } catch (_) {
     // Ignore errors in debug logging
   }
@@ -710,7 +696,6 @@ export function getAssistantMessageFromError(
     error.status === 400 &&
     error.message.includes('unexpected `tool_use_id` found in `tool_result`')
   ) {
-    logEvent('tengu_unexpected_tool_result', {})
   }
 
   // Duplicate tool_use IDs (CC-1212). ensureToolResultPairing strips these
@@ -721,7 +706,6 @@ export function getAssistantMessageFromError(
     error.status === 400 &&
     error.message.includes('`tool_use` ids must be unique')
   ) {
-    logEvent('tengu_duplicate_tool_use_id', {})
     const rewindInstruction = getIsNonInteractiveSession()
       ? ''
       : ' Run /rewind to recover the conversation.'
@@ -1189,7 +1173,6 @@ export function getErrorMessageIfRefusal(
     return
   }
 
-  logEvent('tengu_refusal_api_response', {})
 
   const baseMessage = getIsNonInteractiveSession()
     ? `${API_ERROR_MESSAGE_PREFIX}: Claude Code is unable to respond to this request, which appears to violate our Usage Policy (https://www.anthropic.com/legal/aup). Try rephrasing the request or attempting a different approach.`

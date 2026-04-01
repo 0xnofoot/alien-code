@@ -402,10 +402,6 @@ function toCompactBlock(
       logForDebugging(
         `toAutoClassifierInput failed for ${block.name}: ${errorMessage(e)}`,
       )
-      logEvent('tengu_auto_mode_malformed_tool_input', {
-        toolName:
-          block.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
       encoded = input
     }
     if (encoded === '') return ''
@@ -1437,21 +1433,6 @@ function logAutoModeOutcome(
   },
 ): void {
   const { classifierType, failureKind, ...rest } = extra ?? {}
-  logEvent('tengu_auto_mode_outcome', {
-    outcome:
-      outcome as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    classifierModel:
-      model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    ...(classifierType !== undefined && {
-      classifierType:
-        classifierType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...(failureKind !== undefined && {
-      failureKind:
-        failureKind as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    }),
-    ...rest,
-  })
 }
 
 /**

@@ -327,16 +327,10 @@ export async function ensureDeepLinkProtocolRegistered(): Promise<void> {
 
   try {
     await registerProtocolHandler(claudePath)
-    logEvent('tengu_deep_link_registered', { success: true })
     logForDebugging('Auto-registered claude-cli:// deep link protocol handler')
     await fs.rm(failureMarkerPath, { force: true }).catch(() => {})
   } catch (error) {
     const code = getErrnoCode(error)
-    logEvent('tengu_deep_link_registered', {
-      success: false,
-      error_code:
-        code as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
     logForDebugging(
       `Failed to auto-register deep link protocol handler: ${error instanceof Error ? error.message : String(error)}`,
       { level: 'warn' },

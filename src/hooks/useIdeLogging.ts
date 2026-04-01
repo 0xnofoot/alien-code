@@ -30,10 +30,6 @@ export function useIdeLogging(mcpClients: MCPServerConnection[]): void {
         LogEventSchema(),
         notification => {
           const { eventName, eventData } = notification.params
-          logEvent(
-            `tengu_ide_${eventName}`,
-            eventData as { [key: string]: boolean | number | undefined },
-          )
         },
       )
     }

@@ -303,10 +303,6 @@ export const setupGracefulShutdown = memoize(() => {
       error_name: error.name,
       error_message: error.message.slice(0, 2000),
     })
-    logEvent('tengu_uncaught_exception', {
-      error_name:
-        error.name as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
   })
 
   // Log unhandled promise rejections for container observability and analytics
@@ -326,10 +322,6 @@ export const setupGracefulShutdown = memoize(() => {
           }
         : { error_message: String(reason).slice(0, 2000) }
     logForDiagnosticsNoPII('error', 'unhandled_rejection', errorInfo)
-    logEvent('tengu_unhandled_rejection', {
-      error_name:
-        errorName as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
   })
 })
 
@@ -490,12 +482,6 @@ export async function gracefulShutdown(
   // Fires before analytics flush so the event makes it to the pipeline.
   const lastRequestId = getLastMainRequestId()
   if (lastRequestId) {
-    logEvent('tengu_cache_eviction_hint', {
-      scope:
-        'session_end' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      last_request_id:
-        lastRequestId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
   }
 
   // Flush analytics — capped at 500ms. Previously unbounded: the 1P exporter

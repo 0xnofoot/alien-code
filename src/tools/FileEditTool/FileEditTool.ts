@@ -526,7 +526,6 @@ export const FileEditTool = buildTool({
 
     // 7. Log events
     if (absoluteFilePath.endsWith(`${sep}CLAUDE.md`)) {
-      logEvent('tengu_write_claudemd', {})
     }
     countLinesChanged(patch)
 
@@ -536,11 +535,6 @@ export const FileEditTool = buildTool({
       filePath: absoluteFilePath,
     })
 
-    logEvent('tengu_edit_string_lengths', {
-      oldStringBytes: Buffer.byteLength(old_string, 'utf8'),
-      newStringBytes: Buffer.byteLength(new_string, 'utf8'),
-      replaceAll: replace_all,
-    })
 
     let gitDiff: ToolUseDiff | undefined
     if (
@@ -550,11 +544,6 @@ export const FileEditTool = buildTool({
       const startTime = Date.now()
       const diff = await fetchSingleFileGitDiff(absoluteFilePath)
       if (diff) gitDiff = diff
-      logEvent('tengu_tool_use_diff_computed', {
-        isEditTool: true,
-        durationMs: Date.now() - startTime,
-        hasDiff: !!diff,
-      })
     }
 
     // 8. Yield result

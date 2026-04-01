@@ -225,9 +225,6 @@ async function setupSessionMemoryFile(
     currentMemory = output.file.content
   }
 
-  logEvent('tengu_session_memory_file_read', {
-    content_length: currentMemory.length,
-  })
 
   return { memoryPath, currentMemory }
 }
@@ -285,7 +282,6 @@ const extractSessionMemory = sequential(async function (
     // Log gate failure once per session (ant-only)
     if (process.env.USER_TYPE === 'ant' && !hasLoggedGateFailure) {
       hasLoggedGateFailure = true
-      logEvent('tengu_session_memory_gate_disabled', {})
     }
     return
   }
@@ -329,16 +325,6 @@ const extractSessionMemory = sequential(async function (
   const lastMessage = messages[messages.length - 1]
   const usage = lastMessage ? getTokenUsage(lastMessage) : undefined
   const config = getSessionMemoryConfig()
-  logEvent('tengu_session_memory_extraction', {
-    input_tokens: usage?.input_tokens,
-    output_tokens: usage?.output_tokens,
-    cache_read_input_tokens: usage?.cache_read_input_tokens ?? undefined,
-    cache_creation_input_tokens:
-      usage?.cache_creation_input_tokens ?? undefined,
-    config_min_message_tokens_to_init: config.minimumMessageTokensToInit,
-    config_min_tokens_between_update: config.minimumTokensBetweenUpdate,
-    config_tool_calls_between_updates: config.toolCallsBetweenUpdates,
-  })
 
   // Record the context size at extraction for tracking minimumTokensBetweenUpdate
   recordExtractionTokenCount(tokenCountWithEstimation(messages))
@@ -361,9 +347,6 @@ export function initSessionMemory(): void {
 
   // Log initialization state (ant-only to avoid noise in external logs)
   if (process.env.USER_TYPE === 'ant') {
-    logEvent('tengu_session_memory_init', {
-      auto_compact_enabled: autoCompactEnabled,
-    })
   }
 
   if (!autoCompactEnabled) {
@@ -433,7 +416,6 @@ export async function manuallyExtractSessionMemory(
     })
 
     // Log manual extraction event
-    logEvent('tengu_session_memory_manual_extraction', {})
 
     // Record the context size at extraction for tracking minimumTokensBetweenUpdate
     recordExtractionTokenCount(tokenCountWithEstimation(messages))

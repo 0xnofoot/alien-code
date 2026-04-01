@@ -329,12 +329,6 @@ export const getAgentDefinitionsWithOverrides = memoize(
             logForDebugging(
               `Failed to parse agent from ${filePath}: ${errorMsg}`,
             )
-            logEvent('tengu_agent_parse_error', {
-              error:
-                errorMsg as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-              location:
-                source as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-            })
             return null
           }
           return agent

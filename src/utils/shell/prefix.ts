@@ -254,21 +254,9 @@ async function getCommandPrefixImpl(
           : 'none'
 
     if (startsWithApiErrorPrefix(prefix)) {
-      logEvent(eventName, {
-        success: false,
-        error:
-          'API error' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        durationMs,
-      })
       result = null
     } else if (prefix === 'command_injection_detected') {
       // Haiku detected something suspicious - treat as no prefix available
-      logEvent(eventName, {
-        success: false,
-        error:
-          'command_injection_detected' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        durationMs,
-      })
       result = {
         commandPrefix: null,
       }
@@ -277,23 +265,11 @@ async function getCommandPrefixImpl(
       DANGEROUS_SHELL_PREFIXES.has(prefix.toLowerCase())
     ) {
       // Never accept bare `git` or shell executables as a prefix
-      logEvent(eventName, {
-        success: false,
-        error:
-          'dangerous_shell_prefix' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        durationMs,
-      })
       result = {
         commandPrefix: null,
       }
     } else if (prefix === 'none') {
       // No prefix detected
-      logEvent(eventName, {
-        success: false,
-        error:
-          'prefix "none"' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        durationMs,
-      })
       result = {
         commandPrefix: null,
       }
@@ -302,20 +278,10 @@ async function getCommandPrefixImpl(
 
       if (!command.startsWith(prefix)) {
         // Prefix isn't actually a prefix of the command
-        logEvent(eventName, {
-          success: false,
-          error:
-            'command did not start with prefix' as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-          durationMs,
-        })
         result = {
           commandPrefix: null,
         }
       } else {
-        logEvent(eventName, {
-          success: true,
-          durationMs,
-        })
         result = {
           commandPrefix: prefix,
         }

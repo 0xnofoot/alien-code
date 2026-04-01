@@ -2680,10 +2680,6 @@ export function normalizeContentFromAPI(
             // parse. We fall back to {} which means downstream validation
             // sees empty input. The raw prefix goes to debug log only — no
             // PII-tagged proto column exists for it yet.
-            logEvent('tengu_tool_input_json_parse_fail', {
-              toolName: sanitizeToolNameForAnalytics(contentBlock.name),
-              inputLen: contentBlock.input.length,
-            })
             if (process.env.USER_TYPE === 'ant') {
               logForDebugging(
                 `tool input JSON parse fail: ${contentBlock.input.slice(0, 200)}`,
@@ -2720,9 +2716,6 @@ export function normalizeContentFromAPI(
       }
       case 'text':
         if (contentBlock.text.trim().length === 0) {
-          logEvent('tengu_model_whitespace_response', {
-            length: contentBlock.text.length,
-          })
         }
         // Return the block as-is to preserve exact content for prompt caching.
         // Empty text blocks are handled at the display layer and must not be
@@ -4803,12 +4796,6 @@ function filterTrailingThinkingFromLastAssistant(
     lastValidIndex--
   }
 
-  logEvent('tengu_filtered_trailing_thinking_block', {
-    messageUUID:
-      lastMessage.uuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    blocksRemoved: content.length - lastValidIndex - 1,
-    remainingBlocks: lastValidIndex + 1,
-  })
 
   // Insert placeholder if all blocks were thinking
   const filteredContent =
@@ -4890,10 +4877,6 @@ export function filterWhitespaceOnlyAssistantMessages(
 
     if (hasOnlyWhitespaceTextContent(content)) {
       hasChanges = true
-      logEvent('tengu_filtered_whitespace_only_assistant', {
-        messageUUID:
-          message.uuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      })
       return false
     }
 
@@ -4953,11 +4936,6 @@ function ensureNonEmptyAssistantContent(
     const content = message.message.content
     if (Array.isArray(content) && content.length === 0) {
       hasChanges = true
-      logEvent('tengu_fixed_empty_assistant_content', {
-        messageUUID:
-          message.uuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        messageIndex: index,
-      })
 
       return {
         ...message,
@@ -5044,13 +5022,6 @@ export function filterOrphanedThinkingOnlyMessages(
     }
 
     // Truly orphaned - no other message with same id has content to merge with
-    logEvent('tengu_filtered_orphaned_thinking_message', {
-      messageUUID:
-        msg.uuid as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      messageId: msg.message
-        .id as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      blockCount: content.length,
-    })
     return false
   })
 
@@ -5442,13 +5413,6 @@ export function ensureToolResultPairing(
       )
     }
 
-    logEvent('tengu_tool_result_pairing_repaired', {
-      messageCount: messages.length,
-      repairedMessageCount: result.length,
-      messageTypes: messageTypes.join(
-        '; ',
-      ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    })
     logError(
       new Error(
         `ensureToolResultPairing: repaired missing tool_result blocks (${messages.length} -> ${result.length} messages). Message structure: ${messageTypes.join('; ')}`,

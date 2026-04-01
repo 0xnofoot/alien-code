@@ -343,16 +343,6 @@ export const ToolSearchTool = buildTool({
       matches: string[],
       queryType: 'select' | 'keyword',
     ): void {
-      logEvent('tengu_tool_search_outcome', {
-        query:
-          query as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        queryType:
-          queryType as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-        matchCount: matches.length,
-        totalDeferredTools: deferredTools.length,
-        maxResults: max_results,
-        hasMatches: matches.length > 0,
-      })
     }
 
     // Check for select: prefix — direct tool selection.

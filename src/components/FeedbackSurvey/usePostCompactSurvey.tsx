@@ -177,12 +177,6 @@ function _temp3(msg) {
 }
 function _temp2(appearanceId_0, selected) {
   const smCompactionEnabled_0 = shouldUseSessionMemoryCompaction();
-  logEvent("tengu_post_compact_survey_event", {
-    event_type: "responded" as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    appearance_id: appearanceId_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    response: selected as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    session_memory_compaction_enabled: smCompactionEnabled_0 as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  });
   logOTelEvent("feedback_survey", {
     event_type: "responded",
     appearance_id: appearanceId_0,
@@ -192,11 +186,6 @@ function _temp2(appearanceId_0, selected) {
 }
 function _temp(appearanceId) {
   const smCompactionEnabled = shouldUseSessionMemoryCompaction();
-  logEvent("tengu_post_compact_survey_event", {
-    event_type: "appeared" as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    appearance_id: appearanceId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    session_memory_compaction_enabled: smCompactionEnabled as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS
-  });
   logOTelEvent("feedback_survey", {
     event_type: "appeared",
     appearance_id: appearanceId,

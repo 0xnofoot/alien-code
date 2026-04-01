@@ -133,9 +133,4 @@ export function logBridgeSkip(
   if (debugMsg) {
     logForDebugging(debugMsg)
   }
-  logEvent('tengu_bridge_repl_skipped', {
-    reason:
-      reason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    ...(v2 !== undefined && { v2 }),
-  })
 }

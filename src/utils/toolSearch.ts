@@ -398,21 +398,6 @@ export async function isToolSearchEnabled(
     reason: string,
     extraProps?: Record<string, number>,
   ): void {
-    logEvent('tengu_tool_search_mode_decision', {
-      enabled,
-      mode: mode as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      reason:
-        reason as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      // Log the actual model being checked, not the session's main model.
-      // This is important for debugging subagent tool search decisions where
-      // the subagent model (e.g., haiku) differs from the session model (e.g., opus).
-      checkedModel:
-        model as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      mcpToolCount,
-      userType: (process.env.USER_TYPE ??
-        'external') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-      ...extraProps,
-    })
   }
 
   // Check if model supports tool_reference
@@ -682,21 +667,6 @@ export function getDeferredToolsDelta(
   // subagent first-fires and compact-path scans have EXPECTED prior=0 and
   // dominate the stat. callSite/querySource/attachmentTypesSeen split the
   // buckets so the real main-thread cross-turn failure is isolable in BQ.
-  logEvent('tengu_deferred_tools_pool_change', {
-    addedCount: added.length,
-    removedCount: removed.length,
-    priorAnnouncedCount: announced.size,
-    messagesLength: messages.length,
-    attachmentCount,
-    dtdCount,
-    callSite: (scanContext?.callSite ??
-      'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    querySource: (scanContext?.querySource ??
-      'unknown') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-    attachmentTypesSeen: [...attachmentTypesSeen]
-      .sort()
-      .join(',') as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 
   return {
     addedNames: added.map(t => t.name).sort(),

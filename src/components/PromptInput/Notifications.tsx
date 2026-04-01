@@ -150,7 +150,6 @@ export function Notifications(t0) {
   if ($[10] !== addNotification || $[11] !== removeNotification || $[12] !== shouldShowExternalEditorHint) {
     t9 = () => {
       if (shouldShowExternalEditorHint && editor) {
-        logEvent("tengu_external_editor_hint_shown", {});
         addNotification({
           key: "external-editor-hint",
           jsx: <Text dimColor={true}><ConfigurableShortcutHint action="chat:externalEditor" context="Chat" fallback="ctrl+g" description={`edit in ${toIDEDisplayName(editor)}`} /></Text>,

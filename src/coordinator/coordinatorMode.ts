@@ -68,9 +68,6 @@ export function matchSessionMode(
     delete process.env.CLAUDE_CODE_COORDINATOR_MODE
   }
 
-  logEvent('tengu_coordinator_mode_switched', {
-    to: sessionMode as unknown as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
-  })
 
   return sessionIsCoordinator
     ? 'Entered coordinator mode to match resumed session.'
