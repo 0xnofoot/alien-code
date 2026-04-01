@@ -288,7 +288,7 @@ export function useReplBridge(messages: Message[], setMessages: (action: React.S
                   // to put system/init on the REPL-bridge wire. Skills load is
                   // async (memoized, cheap after REPL startup); fire-and-forget
                   // so the connected-state transition isn't blocked.
-                  if (getFeatureValue_CACHED_MAY_BE_STALE('tengu_bridge_system_init', false)) {
+                  if (false) {
                     void (async () => {
                       try {
                         const skills = await getSlashCommandToolSkills(getCwd());

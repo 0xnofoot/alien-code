@@ -529,10 +529,7 @@ export const FileReadTool = buildTool({
     // the model externally.
     // 3P default: killswitch off = dedup enabled. Client-side only — no
     // server support needed, safe for Bedrock/Vertex/Foundry.
-    const dedupKillswitch = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_read_dedup_killswitch',
-      false,
-    )
+    const dedupKillswitch = false
     const existingState = dedupKillswitch
       ? undefined
       : readFileState.get(fullFilePath)

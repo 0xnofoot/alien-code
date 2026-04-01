@@ -213,10 +213,7 @@ export async function createAndUploadGitBundle(
   // git leaves a partial file on nonzero exit (e.g. empty-repo 128).
   try {
     const maxBytes =
-      getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
-        'tengu_ccr_bundle_max_bytes',
-        null,
-      ) ?? DEFAULT_BUNDLE_MAX_BYTES
+      null ?? DEFAULT_BUNDLE_MAX_BYTES
 
     const bundle = await _bundleWithFallback(
       gitRoot,

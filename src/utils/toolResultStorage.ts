@@ -62,10 +62,7 @@ export function getPersistenceThreshold(
   if (!Number.isFinite(declaredMaxResultSizeChars)) {
     return declaredMaxResultSizeChars
   }
-  const overrides = getFeatureValue_CACHED_MAY_BE_STALE<Record<
-    string,
-    number
-  > | null>(PERSIST_THRESHOLD_OVERRIDE_FLAG, {})
+  const overrides = {}
   const override = overrides?.[toolName]
   if (
     typeof override === 'number' &&
@@ -408,10 +405,7 @@ export function cloneContentReplacementState(
  * so a flag served as null/string/NaN leaks through.
  */
 export function getPerMessageBudgetLimit(): number {
-  const override = getFeatureValue_CACHED_MAY_BE_STALE<number | null>(
-    'tengu_hawthorn_window',
-    null,
-  )
+  const override = null
   if (
     typeof override === 'number' &&
     Number.isFinite(override) &&
@@ -437,10 +431,7 @@ export function provisionContentReplacementState(
   initialMessages?: Message[],
   initialContentReplacements?: ContentReplacementRecord[],
 ): ContentReplacementState | undefined {
-  const enabled = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_hawthorn_steeple',
-    false,
-  )
+  const enabled = false
   if (!enabled) return undefined
   if (initialMessages) {
     return reconstructContentReplacementState(

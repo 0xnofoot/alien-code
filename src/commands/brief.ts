@@ -36,10 +36,7 @@ const DEFAULT_BRIEF_CONFIG: BriefConfig = {
 // The tool-availability gate (tengu_kairos_brief in isBriefEnabled) keeps its
 // 5-min TTL because that one IS a kill switch.
 function getBriefConfig(): BriefConfig {
-  const raw = getFeatureValue_CACHED_MAY_BE_STALE<unknown>(
-    'tengu_kairos_brief_config',
-    DEFAULT_BRIEF_CONFIG,
-  )
+  const raw = DEFAULT_BRIEF_CONFIG
   const parsed = briefConfigSchema().safeParse(raw)
   return parsed.success ? parsed.data : DEFAULT_BRIEF_CONFIG
 }

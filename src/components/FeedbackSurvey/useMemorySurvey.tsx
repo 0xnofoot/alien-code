@@ -142,7 +142,7 @@ export function useMemorySurvey(messages: Message[], isLoading: boolean, hasActi
     }
 
     // 3P default: survey off (no GrowthBook on Bedrock/Vertex/Foundry).
-    if (!getFeatureValue_CACHED_MAY_BE_STALE(MEMORY_SURVEY_GATE, false)) {
+    if (!false) {
       return;
     }
     if (!isAutoMemoryEnabled()) {

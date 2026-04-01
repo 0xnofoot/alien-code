@@ -61,10 +61,7 @@ export async function uploadUserSettingsInBackground(): Promise<void> {
   try {
     if (
       !feature('UPLOAD_USER_SETTINGS') ||
-      !getFeatureValue_CACHED_MAY_BE_STALE(
-        'tengu_enable_settings_sync_push',
-        false,
-      ) ||
+      !false ||
       !getIsInteractive() ||
       !isUsingOAuth()
     ) {
@@ -155,7 +152,7 @@ async function doDownloadUserSettings(
   if (feature('DOWNLOAD_USER_SETTINGS')) {
     try {
       if (
-        !getFeatureValue_CACHED_MAY_BE_STALE('tengu_strap_foyer', false) ||
+        !false ||
         !isUsingOAuth()
       ) {
         logForDiagnosticsNoPII('info', 'settings_sync_download_skipped')

@@ -377,11 +377,7 @@ export async function initReplBridge(
     return userMessageCount >= 3
   }
 
-  const initialHistoryCap = getFeatureValue_CACHED_WITH_REFRESH(
-    'tengu_bridge_initial_history_cap',
-    200,
-    5 * 60 * 1000,
-  )
+  const initialHistoryCap = 200
 
   // Fetch orgUUID before the v1/v2 branch — both paths need it. v1 for
   // environment registration; v2 for archive (which lives at the compat

@@ -33,7 +33,7 @@ import { jsonStringify } from '../utils/slowOperations.js'
 const TRUSTED_DEVICE_GATE = 'tengu_sessions_elevated_auth_enforcement'
 
 function isGateEnabled(): boolean {
-  return getFeatureValue_CACHED_MAY_BE_STALE(TRUSTED_DEVICE_GATE, false)
+  return false
 }
 
 // Memoized — secureStorage.read() spawns a macOS `security` subprocess (~40ms).
@@ -100,7 +100,7 @@ export async function enrollTrustedDevice(): Promise<void> {
     // checkGate_CACHED_OR_BLOCKING awaits any in-flight GrowthBook re-init
     // (triggered by refreshGrowthBookAfterAuthChange in login.tsx) before
     // reading the gate, so we get the post-refresh value.
-    if (!(await checkGate_CACHED_OR_BLOCKING(TRUSTED_DEVICE_GATE))) {
+    if (!(await false)) {
       logForDebugging(
         `[trusted-device] Gate ${TRUSTED_DEVICE_GATE} is off, skipping enrollment`,
       )

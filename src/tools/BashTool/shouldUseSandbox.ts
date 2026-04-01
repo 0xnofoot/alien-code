@@ -21,10 +21,7 @@ type SandboxInput = {
 function containsExcludedCommand(command: string): boolean {
   // Check dynamic config for disabled commands and substrings (only for ants)
   if (process.env.USER_TYPE === 'ant') {
-    const disabledCommands = getFeatureValue_CACHED_MAY_BE_STALE<{
-      commands: string[]
-      substrings: string[]
-    }>('tengu_sandbox_disabled_commands', { commands: [], substrings: [] })
+    const disabledCommands = { commands: [], substrings: [] }
 
     // Check if command contains any disabled substrings
     for (const substring of disabledCommands.substrings) {

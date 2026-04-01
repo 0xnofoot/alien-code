@@ -94,7 +94,7 @@ const SPAWN_SESSIONS_DEFAULT = 32
  * disk cache for next time.
  */
 async function isMultiSessionSpawnEnabled(): Promise<boolean> {
-  return checkGate_CACHED_OR_BLOCKING('tengu_ccr_bridge_multi_session')
+  return false
 }
 
 /**

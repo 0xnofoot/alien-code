@@ -2321,10 +2321,7 @@ export async function refreshAllMarketplaces(): Promise<void> {
         continue
       }
       if (
-        !getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_plugin_official_mkt_git_fallback',
-          true,
-        )
+        !true
       ) {
         logForDebugging(
           `Skipping official marketplace bulk refresh: GCS failed, git fallback disabled`,
@@ -2444,10 +2441,7 @@ export async function refreshMarketplace(
       // to false via GrowthBook once the backend is confirmed live so new
       // clients NEVER hit GitHub for the official marketplace.
       if (
-        !getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_plugin_official_mkt_git_fallback',
-          true,
-        )
+        !true
       ) {
         // Throw, don't return — every other failure path in this function
         // throws, and callers like ManageMarketplaces.tsx:259 increment

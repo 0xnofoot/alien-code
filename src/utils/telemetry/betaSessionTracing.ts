@@ -90,7 +90,7 @@ export function isBetaTracingEnabled(): boolean {
   if (process.env.USER_TYPE !== 'ant') {
     return (
       getIsNonInteractiveSession() ||
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_trace_lantern', false)
+      false
     )
   }
 

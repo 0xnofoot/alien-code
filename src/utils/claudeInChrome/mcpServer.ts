@@ -51,7 +51,7 @@ function isPermissionMode(raw: string): raw is PermissionMode {
 function getChromeBridgeUrl(): string | undefined {
   const bridgeEnabled =
     process.env.USER_TYPE === 'ant' ||
-    getFeatureValue_CACHED_MAY_BE_STALE('tengu_copper_bridge', false)
+    false
 
   if (!bridgeEnabled) {
     return undefined

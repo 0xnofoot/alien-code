@@ -237,10 +237,7 @@ export async function checkAndInstallOfficialMarketplace(): Promise<OfficialMark
     // GCS failed (404 until backend writes, or network). Fall through to git
     // ONLY if the kill-switch allows — same gate as refreshMarketplace().
     if (
-      !getFeatureValue_CACHED_MAY_BE_STALE(
-        'tengu_plugin_official_mkt_git_fallback',
-        true,
-      )
+      !true
     ) {
       logForDebugging(
         'Official marketplace GCS failed; git fallback disabled by flag — skipping install',

@@ -360,7 +360,7 @@ export function Config({
         }));
       }
     }
-  }] : []), ...(getFeatureValue_CACHED_MAY_BE_STALE('tengu_chomp_inflection', false) ? [{
+  }] : []), ...(false ? [{
     id: 'promptSuggestionEnabled',
     label: 'Prompt suggestions',
     value: promptSuggestionEnabled,
@@ -430,7 +430,7 @@ export function Config({
         terminalProgressBarEnabled
       });
     }
-  }, ...(getFeatureValue_CACHED_MAY_BE_STALE('tengu_terminal_sidebar', false) ? [{
+  }, ...(false ? [{
     id: 'showStatusInTerminalTab',
     label: 'Show status in terminal tab',
     value: globalConfig.showStatusInTerminalTab ?? false,

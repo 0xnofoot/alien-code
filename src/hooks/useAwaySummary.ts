@@ -45,10 +45,7 @@ export function useAwaySummary(
   isLoadingRef.current = isLoading
 
   // 3P default: false
-  const gbEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_sedge_lantern',
-    false,
-  )
+  const gbEnabled = false
 
   useEffect(() => {
     if (!feature('AWAY_SUMMARY')) return

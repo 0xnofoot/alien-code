@@ -1143,10 +1143,7 @@ async function* queryLoop(
         // override check), then falls through to multi-turn recovery if
         // 64k also hits the cap.
         // 3P default: false (not validated on Bedrock/Vertex)
-        const capEnabled = getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_otk_slot_v1',
-          false,
-        )
+        const capEnabled = false
         if (
           capEnabled &&
           maxOutputTokensOverride === undefined &&

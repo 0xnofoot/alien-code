@@ -70,7 +70,7 @@ isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_BACKGROUND_TASKS);
 // Auto-background agent tasks after this many ms (0 = disabled)
 // Enabled by env var OR GrowthBook gate (checked lazily since GB may not be ready at module load)
 function getAutoBackgroundMs(): number {
-  if (isEnvTruthy(process.env.CLAUDE_AUTO_BACKGROUND_TASKS) || getFeatureValue_CACHED_MAY_BE_STALE('tengu_auto_background_agents', false)) {
+  if (isEnvTruthy(process.env.CLAUDE_AUTO_BACKGROUND_TASKS) || false) {
     return 120_000;
   }
   return 0;

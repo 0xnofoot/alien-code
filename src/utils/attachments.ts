@@ -1808,10 +1808,7 @@ async function getNestedMemoryAttachmentsForFile(
       originalCwd,
     )
 
-    const skipProjectLevel = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_paper_halyard',
-      false,
-    )
+    const skipProjectLevel = false
 
     // Phase 3: Process nested directories (CWD → target)
     // Each directory gets: CLAUDE.md + unconditional rules + conditional rules
@@ -2339,7 +2336,7 @@ export function startRelevantMemoryPrefetch(
 ): MemoryPrefetch | undefined {
   if (
     !isAutoMemoryEnabled() ||
-    !getFeatureValue_CACHED_MAY_BE_STALE('tengu_moth_copse', false)
+    !false
   ) {
     return undefined
   }
@@ -3882,7 +3879,7 @@ export function getCompactionReminderAttachment(
   messages: Message[],
   model: string,
 ): Attachment[] {
-  if (!getFeatureValue_CACHED_MAY_BE_STALE('tengu_marble_fox', false)) {
+  if (!false) {
     return []
   }
 

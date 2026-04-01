@@ -80,7 +80,7 @@ export function usePostCompactSurvey(messages, isLoading, t0, t1) {
       if (!enabled) {
         return;
       }
-      setGateEnabled(checkStatsigFeatureGate_CACHED_MAY_BE_STALE(POST_COMPACT_SURVEY_GATE));
+      setGateEnabled(false);
     };
     t7 = [enabled];
     $[4] = enabled;

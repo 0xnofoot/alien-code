@@ -517,9 +517,7 @@ const externalTips: Tip[] = [
     content: async ctx => {
       const blue = color('suggestion', ctx.theme)
       const cmd = blue('/effort high')
-      const variant = getFeatureValue_CACHED_MAY_BE_STALE<
-        'off' | 'copy_a' | 'copy_b'
-      >('tengu_tide_elm', 'off')
+      const variant = 'off'
       return variant === 'copy_b'
         ? `Use ${cmd} for better one-shot answers. Claude thinks it through first.`
         : `Working on something tricky? ${cmd} gives better first answers`
@@ -535,10 +533,7 @@ const externalTips: Tip[] = [
       const persisted = getInitialSettings().effortLevel
       if (persisted === 'high' || persisted === 'max') return false
       return (
-        getFeatureValue_CACHED_MAY_BE_STALE<'off' | 'copy_a' | 'copy_b'>(
-          'tengu_tide_elm',
-          'off',
-        ) !== 'off'
+        'off' !== 'off'
       )
     },
   },
@@ -546,9 +541,7 @@ const externalTips: Tip[] = [
     id: 'subagent-fanout-nudge',
     content: async ctx => {
       const blue = color('suggestion', ctx.theme)
-      const variant = getFeatureValue_CACHED_MAY_BE_STALE<
-        'off' | 'copy_a' | 'copy_b'
-      >('tengu_tern_alloy', 'off')
+      const variant = 'off'
       return variant === 'copy_b'
         ? `For big tasks, tell Claude to ${blue('use subagents')}. They work in parallel and keep your main thread clean.`
         : `Say ${blue('"fan out subagents"')} and Claude sends a team. Each one digs deep so nothing gets missed.`
@@ -557,10 +550,7 @@ const externalTips: Tip[] = [
     isRelevant: async () => {
       if (!is1PApiCustomer()) return false
       return (
-        getFeatureValue_CACHED_MAY_BE_STALE<'off' | 'copy_a' | 'copy_b'>(
-          'tengu_tern_alloy',
-          'off',
-        ) !== 'off'
+        'off' !== 'off'
       )
     },
   },
@@ -568,9 +558,7 @@ const externalTips: Tip[] = [
     id: 'loop-command-nudge',
     content: async ctx => {
       const blue = color('suggestion', ctx.theme)
-      const variant = getFeatureValue_CACHED_MAY_BE_STALE<
-        'off' | 'copy_a' | 'copy_b'
-      >('tengu_timber_lark', 'off')
+      const variant = 'off'
       return variant === 'copy_b'
         ? `Use ${blue('/loop 5m check the deploy')} to run any prompt on a schedule. Set it and forget it.`
         : `${blue('/loop')} runs any prompt on a recurring schedule. Great for monitoring deploys, babysitting PRs, or polling status.`
@@ -580,10 +568,7 @@ const externalTips: Tip[] = [
       if (!is1PApiCustomer()) return false
       if (!isKairosCronEnabled()) return false
       return (
-        getFeatureValue_CACHED_MAY_BE_STALE<'off' | 'copy_a' | 'copy_b'>(
-          'tengu_timber_lark',
-          'off',
-        ) !== 'off'
+        'off' !== 'off'
       )
     },
   },

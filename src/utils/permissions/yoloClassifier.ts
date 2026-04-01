@@ -70,10 +70,7 @@ const ANTHROPIC_PERMISSIONS_TEMPLATE: string =
 
 function isUsingExternalPermissions(): boolean {
   if (process.env.USER_TYPE !== 'ant') return true
-  const config = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_auto_mode_config',
-    {} as AutoModeConfig,
-  )
+  const config = {} as AutoModeConfig
   return config?.forceExternalPermissions === true
 }
 
@@ -1332,10 +1329,7 @@ function getClassifierModel(): string {
     const envModel = process.env.CLAUDE_CODE_AUTO_MODE_MODEL
     if (envModel) return envModel
   }
-  const config = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_auto_mode_config',
-    {} as AutoModeConfig,
-  )
+  const config = {} as AutoModeConfig
   if (config?.model) {
     return config.model
   }
@@ -1357,10 +1351,7 @@ function resolveTwoStageClassifier():
     if (isEnvTruthy(env)) return true
     if (isEnvDefinedFalsy(env)) return false
   }
-  const config = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_auto_mode_config',
-    {} as AutoModeConfig,
-  )
+  const config = {} as AutoModeConfig
   return config?.twoStageClassifier
 }
 
@@ -1378,10 +1369,7 @@ function isJsonlTranscriptEnabled(): boolean {
     if (isEnvTruthy(env)) return true
     if (isEnvDefinedFalsy(env)) return false
   }
-  const config = getFeatureValue_CACHED_MAY_BE_STALE(
-    'tengu_auto_mode_config',
-    {} as AutoModeConfig,
-  )
+  const config = {} as AutoModeConfig
   return config?.jsonlTranscript === true
 }
 

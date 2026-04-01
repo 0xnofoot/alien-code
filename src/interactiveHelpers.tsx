@@ -147,7 +147,6 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     // Defense for login/logout: clears any prior client so the next init
     // picks up fresh auth headers.
     resetGrowthBook();
-    void initializeGrowthBook();
 
     // Now that trust is established, prefetch system context if it wasn't already
     void getSystemContext();
@@ -247,7 +246,7 @@ export async function showSetupScreens(root: Root, permissionMode: PermissionMod
     // initializeGrowthBook promise fired earlier). Also warms the
     // isChannelsEnabled() check in the dev-channels dialog below.
     if (getAllowedChannels().length > 0 || (devChannels?.length ?? 0) > 0) {
-      await checkGate_CACHED_OR_BLOCKING('tengu_harbor');
+      await false;
     }
     if (devChannels && devChannels.length > 0) {
       const [{

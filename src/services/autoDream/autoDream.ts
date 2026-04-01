@@ -72,10 +72,7 @@ const DEFAULTS: AutoDreamConfig = {
  */
 function getConfig(): AutoDreamConfig {
   const raw =
-    getFeatureValue_CACHED_MAY_BE_STALE<Partial<AutoDreamConfig> | null>(
-      'tengu_onyx_plover',
-      null,
-    )
+    null
   return {
     minHours:
       typeof raw?.minHours === 'number' &&

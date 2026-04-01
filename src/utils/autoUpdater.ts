@@ -73,9 +73,7 @@ export async function assertMinVersion(): Promise<void> {
   }
 
   try {
-    const versionConfig = await getDynamicConfig_BLOCKS_ON_INIT<{
-      minVersion: string
-    }>('tengu_version_config', { minVersion: '0.0.0' })
+    const versionConfig = await { minVersion: '0.0.0' }
 
     if (
       versionConfig.minVersion &&
@@ -127,10 +125,7 @@ export async function getMaxVersionMessage(): Promise<string | undefined> {
 
 async function getMaxVersionConfig(): Promise<MaxVersionConfig> {
   try {
-    return await getDynamicConfig_BLOCKS_ON_INIT<MaxVersionConfig>(
-      'tengu_max_version_config',
-      {},
-    )
+    return await {}
   } catch (error) {
     logError(error as Error)
     return {}

@@ -212,10 +212,7 @@ async function getCommandPrefixImpl(
       isNonInteractiveSession,
     )
 
-    const useSystemPromptPolicySpec = getFeatureValue_CACHED_MAY_BE_STALE(
-      'tengu_cork_m4q',
-      false,
-    )
+    const useSystemPromptPolicySpec = false
 
     const response = await queryHaiku({
       systemPrompt: asSystemPrompt(

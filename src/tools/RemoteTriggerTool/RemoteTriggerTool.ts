@@ -56,7 +56,7 @@ export const RemoteTriggerTool = buildTool({
   },
   isEnabled() {
     return (
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_surreal_dali', false) &&
+      false &&
       isPolicyAllowed('allow_remote_sessions')
     )
   },
