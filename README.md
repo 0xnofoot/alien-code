@@ -1,9 +1,5 @@
 # Alien Code — 可构建源码（基于 2026-03-31 泄露版本）
 
-<p align="center">
-  <img src="assets/icon.jpg" alt="Alien Skater Logo" width="200"/>
-</p>
-
 > **2026 年 3 月 31 日，Anthropic 的 Claude Code CLI 完整源码通过 npm 包中暴露的 `.map` 文件泄露。**
 > 本 fork 在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，使其可以脱离 Anthropic 内部基础设施独立编译运行。
 
