@@ -6,7 +6,7 @@
  *   bun run build.ts           # production build
  *   bun run build.ts --dev     # development build (no minify, with sourcemap)
  *
- * Output: package/new-claude.js
+ * Output: package/alien-code.js
  */
 
 import { existsSync } from 'fs'
@@ -16,7 +16,7 @@ import { dirname, join, resolve } from 'path'
 const isDev = process.argv.includes('--dev')
 const ROOT = import.meta.dir
 const outDir = join(ROOT, 'package')
-const outFile = join(outDir, 'new-claude.js')
+const outFile = join(outDir, 'alien-code.js')
 
 await mkdir(outDir, { recursive: true })
 
@@ -157,7 +157,7 @@ console.log(`Building Alien Code v${VERSION} (${isDev ? 'dev' : 'production'})..
 const result = await Bun.build({
   entrypoints: ['./src/entrypoints/cli.tsx'],
   outdir: outDir,
-  naming: 'new-claude.js',
+  naming: 'alien-code.js',
   target: 'node',
   format: 'esm',
   bundle: true,

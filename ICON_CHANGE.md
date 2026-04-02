@@ -22,10 +22,10 @@
 
 **验证**：
 ```bash
-node package/new-claude.js --version
+node package/alien-code.js --version
 # 输出: 0.0.1 (Alien Code)
 
-node package/new-claude.js --help
+node package/alien-code.js --help
 # 显示: Alien Code - starts an interactive session...
 ```
 
@@ -101,7 +101,7 @@ bun run build.ts
 设置 `CLAUDE_SIMPLE_LOGO=true` 可以使用简化版 ASCII art（仅使用基础 ASCII 字符）：
 
 ```bash
-CLAUDE_SIMPLE_LOGO=true node package/new-claude.js
+CLAUDE_SIMPLE_LOGO=true node package/alien-code.js
 ```
 
 ## LLM 提供商动态显示
@@ -250,18 +250,18 @@ OPENAI_MODEL=gpt-4
 ```bash
 # Anthropic API（默认使用 Sonnet 4.6）
 export ANTHROPIC_API_KEY=sk-ant-...
-node package/new-claude.js
+node package/alien-code.js
 
 # Anthropic API（指定模型）
 export ANTHROPIC_API_KEY=sk-ant-...
 export ANTHROPIC_MODEL=opus  # 或 sonnet, haiku 等
-node package/new-claude.js
+node package/alien-code.js
 
 # OpenAI API
 export OPENAI_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-...
 export OPENAI_MODEL=gpt-4
-node package/new-claude.js
+node package/alien-code.js
 ```
 
 ### 模型配置

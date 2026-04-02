@@ -102,19 +102,19 @@ cd claude-code
 # 2. 安装依赖
 bun install
 
-# 3. 生产构建（输出到 package/new-claude.js）
+# 3. 生产构建（输出到 package/alien-code.js）
 VERSION=2.1.88 bun run build.ts
 
 # 4. 验证构建产物
-node package/new-claude.js --version
-# → 2.1.88 (Claude Code)
+node package/alien-code.js --version
+# → 2.1.88 (Alien Code)
 
 # 5. 使用 Anthropic API
-ANTHROPIC_API_KEY=sk-ant-xxx node package/new-claude.js --print "你好"
+ANTHROPIC_API_KEY=sk-ant-xxx node package/alien-code.js --print "你好"
 
 # 或使用 OpenAI 兼容接口
 OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://api.openai.com/v1 \
-  node package/new-claude.js /llm-source  # 在交互模式中切换
+  node package/alien-code.js /llm-source  # 在交互模式中切换
 ```
 
 ### 开发构建
@@ -147,7 +147,7 @@ src/entrypoints/cli.tsx          ← 构建入口
         ↓
   Bun DCE 产物修复（语法修补）
         ↓
-package/new-claude.js            ← 最终产物（~15 MB ESM）
+package/alien-code.js            ← 最终产物（~15 MB ESM）
 ```
 
 #### 插件 1：`js-to-ts-abs` — .js → .ts 路径重写
@@ -311,7 +311,7 @@ export OPENAI_API_KEY="sk-xxx"
 export OPENAI_BASE_URL="https://api.openai.com/v1"
 export OPENAI_MODEL="gpt-4"
 
-node package/new-claude.js
+node package/alien-code.js
 ```
 
 #### 2. 配置文件（持久化）
@@ -543,7 +543,7 @@ vim src/commands/example/index.ts
 bun run build.ts
 
 # 3. 测试
-node package/new-claude.js --print "测试"
+node package/alien-code.js --print "测试"
 ```
 
 ### 添加新功能
