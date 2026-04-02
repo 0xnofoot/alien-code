@@ -4,7 +4,7 @@ import type { Command } from '../commands.js';
 import { DIAMOND_OPEN } from '../constants/figures.js';
 import { getRemoteSessionUrl } from '../constants/product.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';
-import { type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS, logEvent } from '../services/analytics/index.js';
+// Analytics removed
 import type { AppState } from '../state/AppStateStore.js';
 import { checkRemoteAgentEligibility, formatPreconditionError, RemoteAgentTask, type RemoteAgentTaskState, registerRemoteAgentTask } from '../tasks/RemoteAgentTask/RemoteAgentTask.js';
 import type { LocalJSXCommandCall } from '../types/command.js';
@@ -81,7 +81,7 @@ function startDetachedPoll(taskId: string, sessionId: string, url: string, getAp
         rejectCount,
         executionTarget
       } = await pollForApprovedExitPlanMode(sessionId, ULTRAPLAN_TIMEOUT_MS, phase => {
-        if (phase === 'needs_input') logEvent('tengu_ultraplan_awaiting_input', {});
+        // Analytics removed: phase === 'needs_input'
         updateTaskState<RemoteAgentTaskState>(taskId, setAppState, t => {
           if (t.status !== 'running') return t;
           const next = phase === 'running' ? undefined : phase;

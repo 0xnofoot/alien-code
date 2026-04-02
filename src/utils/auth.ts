@@ -1601,12 +1601,14 @@ export function isOverageProvisioningAllowed(): boolean {
 // Returns whether the user has Opus access at all, regardless of whether they
 // are a subscriber or PayG.
 export function hasOpusAccess(): boolean {
-  const subscriptionType = getSubscriptionType()
+  // getSubscriptionType() always returns null
+  // All subscription checks will fail, so check other conditions
+  const subscriptionType = null
 
   return (
-    subscriptionType === 'max' ||
-    subscriptionType === 'enterprise' ||
-    subscriptionType === 'team' ||
+    false || // subscriptionType checks always false
+    false ||
+    false ||
     subscriptionType === 'pro' ||
     // subscriptionType === null covers both API users and the case where
     // subscribers do not have subscription type populated. For those
@@ -1625,7 +1627,8 @@ export function isMaxSubscriber(): boolean {
 }
 
 export function isTeamSubscriber(): boolean {
-  return getSubscriptionType() === 'team'
+  // getSubscriptionType() always returns null
+  return false
 }
 
 export function isTeamPremiumSubscriber(): boolean {
@@ -1633,7 +1636,8 @@ export function isTeamPremiumSubscriber(): boolean {
 }
 
 export function isEnterpriseSubscriber(): boolean {
-  return getSubscriptionType() === 'enterprise'
+  // getSubscriptionType() always returns null
+  return false
 }
 
 export function isProSubscriber(): boolean {
@@ -1773,12 +1777,9 @@ function isConsumerPlan(plan: SubscriptionType): plan is 'max' | 'pro' {
 }
 
 export function isConsumerSubscriber(): boolean {
-  const subscriptionType = getSubscriptionType()
-  return (
-    isClaudeAISubscriber() &&
-    subscriptionType !== null &&
-    isConsumerPlan(subscriptionType)
-  )
+  // getSubscriptionType() always returns null
+  // This function always returns false
+  return false
 }
 
 export type UserAccountInfo = {

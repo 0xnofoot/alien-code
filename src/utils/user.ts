@@ -4,7 +4,6 @@ import { getSessionId } from '../bootstrap/state.js'
 import {
   getOauthAccountInfo,
   getRateLimitTier,
-  getSubscriptionType,
 } from './auth.js'
 import { getGlobalConfig, getOrCreateUserID } from './config.js'
 import { getCwd } from './cwd.js'
@@ -84,16 +83,10 @@ export const getCoreUserData = memoize(
     let rateLimitTier: string | undefined
     let firstTokenTime: number | undefined
     if (includeAnalyticsMetadata) {
-      subscriptionType = getSubscriptionType() ?? undefined
+      // getSubscriptionType() always returns null, so leave undefined
+      subscriptionType = undefined
       rateLimitTier = getRateLimitTier() ?? undefined
-      if (subscriptionType && config.claudeCodeFirstTokenDate) {
-        const configFirstTokenTime = new Date(
-          config.claudeCodeFirstTokenDate,
-        ).getTime()
-        if (!isNaN(configFirstTokenTime)) {
-          firstTokenTime = configFirstTokenTime
-        }
-      }
+      // No subscription type, so skip firstTokenTime calculation
     }
 
     // Only include OAuth account data when actively using OAuth authentication

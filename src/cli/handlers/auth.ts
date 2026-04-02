@@ -52,7 +52,8 @@ export async function authStatus(opts: {
   const hasApiKeyEnvVar =
     !!process.env.ANTHROPIC_API_KEY && !isRunningOnHomespace()
   const oauthAccount = getOauthAccountInfo()
-  const subscriptionType = getSubscriptionType()
+  // getSubscriptionType() always returns null
+  const subscriptionType = null
   const using3P = isUsing3PServices()
   const loggedIn =
     hasToken || apiKeySource !== 'none' || hasApiKeyEnvVar || using3P

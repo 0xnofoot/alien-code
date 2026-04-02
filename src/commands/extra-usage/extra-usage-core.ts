@@ -24,9 +24,9 @@ export async function runExtraUsage(): Promise<ExtraUsageResult> {
   // /extra-usage more than once while iterating on the claim flow.
   invalidateOverageCreditGrantCache()
 
-  const subscriptionType = getSubscriptionType()
-  const isTeamOrEnterprise =
-    subscriptionType === 'team' || subscriptionType === 'enterprise'
+  // getSubscriptionType() always returns null
+  const subscriptionType = null
+  const isTeamOrEnterprise = false
   const hasBillingAccess = hasClaudeAiBillingAccess()
 
   if (!hasBillingAccess && isTeamOrEnterprise) {

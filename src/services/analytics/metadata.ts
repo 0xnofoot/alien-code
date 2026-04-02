@@ -726,9 +726,8 @@ export async function getEventMetadata(
     // Priority: AsyncLocalStorage context (subagents) > env vars (swarm teammates)
     ...getAgentIdentification(),
     // Subscription tier for DAU-by-tier analytics
-    ...(getSubscriptionType() && {
-      subscriptionType: getSubscriptionType()!,
-    }),
+    // getSubscriptionType() always returns null, so omit this field
+
     // Assistant mode tag — lives outside memoized buildEnvContext() because
     // setKairosActive() runs at main.tsx:~1648, after the first event may
     // have already fired and memoized the env. Read fresh per-event instead.

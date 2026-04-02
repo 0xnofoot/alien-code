@@ -9,9 +9,6 @@ import { getMainLoopModelOverride } from '../../bootstrap/state.js'
 import {
   getSubscriptionType,
   isClaudeAISubscriber,
-  isMaxSubscriber,
-  isProSubscriber,
-  isTeamPremiumSubscriber,
 } from '../auth.js'
 import {
   has1mContext,
@@ -66,7 +63,16 @@ export function getUserSpecifiedModelSetting(): ModelSetting | undefined {
     specifiedModel = modelOverride
   } else {
     const settings = getSettings_DEPRECATED() || {}
-    specifiedModel = process.env.ANTHROPIC_MODEL || settings.model || undefined
+
+    // Check llm-source configuration for Anthropic model
+    const { getAnthropicModel } = require('../llmProvider.js')
+    const anthropicModel = getAnthropicModel()
+
+    specifiedModel =
+      process.env.ANTHROPIC_MODEL ||
+      anthropicModel ||
+      settings.model ||
+      undefined
   }
 
   // Ignore the user-specified model if it's not in the availableModels allowlist.
@@ -169,9 +175,10 @@ export function getRuntimeMainLoopModel(params: {
 /**
  * Get the default main loop model setting.
  *
- * This handles the built-in default:
- * - Opus for Max and Team Premium users
- * - Sonnet 4.6 for all other users (including Team Standard, Pro, Enterprise)
+ * This returns the built-in fallback when user hasn't specified a model via:
+ * - /model command, --model flag, ANTHROPIC_MODEL env, or settings.json
+ *
+ * Defaults to Sonnet 4.6 - users can override via environment variables or config.
  *
  * @returns The default model setting to use
  */
@@ -184,18 +191,8 @@ export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
     )
   }
 
-  // Max users get Opus as default
-  if (isMaxSubscriber()) {
-    return getDefaultOpusModel() + (isOpus1mMergeEnabled() ? '[1m]' : '')
-  }
-
-  // Team Premium gets Opus (same as Max)
-  if (isTeamPremiumSubscriber()) {
-    return getDefaultOpusModel() + (isOpus1mMergeEnabled() ? '[1m]' : '')
-  }
-
-  // PAYG (1P and 3P), Enterprise, Team Standard, and Pro get Sonnet as default
-  // Note that PAYG (3P) may default to an older Sonnet model
+  // Default to Sonnet 4.6 for balance of cost and performance
+  // Users can use Opus by setting ANTHROPIC_MODEL or in settings.json
   return getDefaultSonnetModel()
 }
 
@@ -286,13 +283,9 @@ export function getCanonicalName(fullModelName: ModelName): ModelShortName {
 export function getClaudeAiUserDefaultModelDescription(
   fastMode = false,
 ): string {
-  if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
-    if (isOpus1mMergeEnabled()) {
-      return `Opus 4.6 with 1M context · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
-    }
-    return `Opus 4.6 · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
-  }
-  return 'Sonnet 4.6 · Best for everyday tasks'
+  // Show description for the default model (Sonnet)
+  // Users can override via ANTHROPIC_MODEL environment variable or settings.json
+  return `Sonnet 4.6 · Best balance of intelligence and speed`
 }
 
 export function renderDefaultModelSetting(
@@ -312,22 +305,10 @@ export function getOpus46PricingSuffix(fastMode: boolean): string {
 }
 
 export function isOpus1mMergeEnabled(): boolean {
-  if (
-    is1mContextDisabled() ||
-    isProSubscriber() ||
-    getAPIProvider() !== 'firstParty'
-  ) {
+  if (is1mContextDisabled() || getAPIProvider() !== 'firstParty') {
     return false
   }
-  // Fail closed when a subscriber's subscription type is unknown. The VS Code
-  // config-loading subprocess can have OAuth tokens with valid scopes but no
-  // subscriptionType field (stale or partial refresh). Without this guard,
-  // isProSubscriber() returns false for such users and the merge leaks
-  // opus[1m] into the model dropdown — the API then rejects it with a
-  // misleading "rate limit reached" error.
-  if (isClaudeAISubscriber() && getSubscriptionType() === null) {
-    return false
-  }
+  // Subscription checks removed - enabled for all users
   return true
 }
 
@@ -393,47 +374,22 @@ function maskModelCodename(baseName: string): string {
 }
 
 export function renderModelName(model: ModelName): string {
-  // Check if using custom LLM provider
-  const provider = getAPIProvider()
+  // Check LLM provider and directly return the configured model name without conversion
+  const { getLLMProvider, getOpenAIModel, getAnthropicModel } = require('../llmProvider.js')
 
-  if (provider === 'openai') {
-    // For OpenAI provider, return the OpenAI model name directly
-    const { getLLMProvider, getOpenAIModel } = require('../llmProvider.js')
-    if (getLLMProvider() === 'openai') {
-      return getOpenAIModel()
-    }
+  if (getLLMProvider() === 'openai') {
+    // For OpenAI provider, directly return the configured model name
+    return getOpenAIModel()
   }
 
-  // For Anthropic API, check if using custom model
-  const { getAnthropicModel } = require('../llmProvider.js')
+  // For Anthropic API, directly return the configured or actual model name
+  // No conversion to friendly names - show the raw model ID
   const configuredModel = getAnthropicModel()
-  if (configuredModel && configuredModel !== model) {
-    // User has configured a specific model, use it instead of the default display name
-    const publicName = getPublicModelDisplayName(configuredModel)
-    if (publicName) {
-      return publicName
-    }
+  if (configuredModel) {
     return configuredModel
   }
 
-  const publicName = getPublicModelDisplayName(model)
-  if (publicName) {
-    return publicName
-  }
-  if (process.env.USER_TYPE === 'ant') {
-    const resolved = parseUserSpecifiedModel(model)
-    const antModel = resolveAntModel(model)
-    if (antModel) {
-      const baseName = antModel.model.replace(/\[1m\]$/i, '')
-      const masked = maskModelCodename(baseName)
-      const suffix = has1mContext(resolved) ? '[1m]' : ''
-      return masked + suffix
-    }
-    if (resolved !== model) {
-      return `${model} (${resolved})`
-    }
-    return resolved
-  }
+  // Return the actual model being used (raw model ID)
   return model
 }
 
@@ -580,8 +536,6 @@ export function modelDisplayString(model: ModelSetting): string {
   if (model === null) {
     if (process.env.USER_TYPE === 'ant') {
       return `Default for Ants (${renderDefaultModelSetting(getDefaultMainLoopModelSetting())})`
-    } else if (isClaudeAISubscriber()) {
-      return `Default (${getClaudeAiUserDefaultModelDescription()})`
     }
     return `Default (${getDefaultMainLoopModel()})`
   }

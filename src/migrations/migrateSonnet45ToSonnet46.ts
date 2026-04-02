@@ -2,11 +2,6 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../services/analytics/index.js'
-import {
-  isMaxSubscriber,
-  isProSubscriber,
-  isTeamPremiumSubscriber,
-} from '../utils/auth.js'
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
 import { getAPIProvider } from '../utils/model/providers.js'
 import {
@@ -31,10 +26,7 @@ export function migrateSonnet45ToSonnet46(): void {
     return
   }
 
-  if (!isProSubscriber() && !isMaxSubscriber() && !isTeamPremiumSubscriber()) {
-    return
-  }
-
+  // Subscription check removed - migration applies to all users
   const model = getSettingsForSource('userSettings')?.model
   if (
     model !== 'claude-sonnet-4-5-20250929' &&

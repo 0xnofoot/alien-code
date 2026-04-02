@@ -60,10 +60,12 @@ export function hasClaudeAiBillingAccess(): boolean {
     return false
   }
 
-  const subscriptionType = getSubscriptionType()
+  // getSubscriptionType() always returns null
+  // Consumer plans check always fails
+  const subscriptionType = null
 
-  // Consumer plans (Max/Pro) - individual users always have billing access
-  if (subscriptionType === 'max' || subscriptionType === 'pro') {
+  // This check is now always false
+  if (false) {
     return true
   }
 

@@ -1538,7 +1538,8 @@ export function getAgentListingDeltaAttachment(
       addedLines: added.map(formatAgentLine),
       removedTypes: removed,
       isInitial: announced.size === 0,
-      showConcurrencyNote: getSubscriptionType() !== 'pro',
+      // getSubscriptionType() always returns null, so always show concurrency note
+      showConcurrencyNote: true,
     },
   ]
 }

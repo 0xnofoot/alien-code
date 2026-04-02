@@ -69,11 +69,8 @@ export async function fetchReferralRedemptions(
  * Prechecks for if user can access guest passes feature
  */
 function shouldCheckForPasses(): boolean {
-  return !!(
-    getOauthAccountInfo()?.organizationUuid &&
-    isClaudeAISubscriber() &&
-    getSubscriptionType() === 'max'
-  )
+  // getSubscriptionType() always returns null, so this check always fails
+  return false
 }
 
 /**

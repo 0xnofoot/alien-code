@@ -232,8 +232,9 @@ export function gateChannelServer(
   // "policy settings exist" — a team org with zero configured policy keys
   // (remote endpoint returns 404) is still a managed org and must not fall
   // through to the unmanaged path.
-  const sub = getSubscriptionType()
-  const managed = sub === 'team' || sub === 'enterprise'
+  // getSubscriptionType() always returns null
+  const sub = null
+  const managed = false // sub === 'team' || sub === 'enterprise' is always false
   const policy = managed ? getSettingsForSource('policySettings') : undefined
   if (managed && policy?.channelsEnabled !== true) {
     return {

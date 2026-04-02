@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Box, Text } from '../ink.js';
-import { isMaxSubscriber, isProSubscriber, isTeamSubscriber } from '../utils/auth.js';
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js';
 import type { EffortLevel } from '../utils/effort.js';
 import { convertEffortValueToLevel, getDefaultEffortForModel, getOpusDefaultEffortConfig, toPersistableEffort } from '../utils/effort.js';
@@ -211,10 +210,7 @@ function EffortOptionLabel(t0) {
 /**
  * Check whether to show the effort callout.
  *
- * Audience:
- * - Pro: already had medium default; show unless they saw v1 (effortCalloutDismissed)
- * - Max/Team: getting medium via tengu_grey_step2 config; show when enabled
- * - Everyone else: mark as dismissed so it never shows
+ * Subscription checks removed - show to all users based on config
  */
 export function shouldShowEffortCallout(model: string): boolean {
   // Only show for Opus 4.6 for now
@@ -232,26 +228,12 @@ export function shouldShowEffortCallout(model: string): boolean {
     return false;
   }
 
-  // Pro users already had medium default before this PR. Show the new copy,
-  // but skip if they already saw the v1 dialog — no point nagging twice.
-  if (isProSubscriber()) {
-    if (config.effortCalloutDismissed) {
-      markV2Dismissed();
-      return false;
-    }
-    return getOpusDefaultEffortConfig().enabled;
+  // Show the callout if enabled in config (subscription checks removed)
+  if (config.effortCalloutDismissed) {
+    markV2Dismissed();
+    return false;
   }
-
-  // Max/Team are the target of the tengu_grey_step2 config.
-  // Don't mark dismissed when config is disabled — they should see the dialog
-  // once it's enabled for them.
-  if (isMaxSubscriber() || isTeamSubscriber()) {
-    return getOpusDefaultEffortConfig().enabled;
-  }
-
-  // Everyone else (free tier, API key, non-subscribers): not in scope.
-  markV2Dismissed();
-  return false;
+  return getOpusDefaultEffortConfig().enabled;
 }
 function markV2Dismissed(): void {
   saveGlobalConfig(current => {

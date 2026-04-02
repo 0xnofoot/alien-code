@@ -8,8 +8,8 @@ const upgrade = {
   description: 'Upgrade to Max for higher rate limits and more Opus',
   availability: ['claude-ai'],
   isEnabled: () =>
-    !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND) &&
-    getSubscriptionType() !== 'enterprise',
+    // getSubscriptionType() always returns null, so the check is always true
+    !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND),
   load: () => import('./upgrade.js'),
 } satisfies Command
 

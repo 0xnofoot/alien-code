@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
 import { formatCost } from 'src/cost-tracker.js';
-import { getSubscriptionType } from 'src/utils/auth.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
@@ -229,11 +228,9 @@ export function Usage(): React.ReactNode {
   }
 
   // Only Max and Team plans have a Sonnet limit that differs from the weekly
-  // limit (see rateLimitMessages.ts). For other plans the bar is redundant.
-  // Show for null (unknown plan) to stay consistent with rateLimitMessages.ts,
-  // which labels it "Sonnet limit" in that case.
-  const subscriptionType = getSubscriptionType();
-  const showSonnetBar = subscriptionType === 'max' || subscriptionType === 'team' || subscriptionType === null;
+  // limit (see rateLimitMessages.ts). getSubscriptionType() always returns null now,
+  // so we always show the Sonnet bar.
+  const showSonnetBar = true;
   const limits = [{
     title: 'Current session',
     limit: utilization.five_hour
@@ -274,8 +271,8 @@ function ExtraUsageSection(t0) {
     extraUsage,
     maxWidth
   } = t0;
-  const subscriptionType = getSubscriptionType();
-  const isProOrMax = subscriptionType === "pro" || subscriptionType === "max";
+  // getSubscriptionType() always returns null, so isProOrMax is always false
+  const isProOrMax = false;
   if (!isProOrMax) {
     return false;
   }
