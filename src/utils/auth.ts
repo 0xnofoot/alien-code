@@ -1521,11 +1521,8 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
 }
 
 export function isClaudeAISubscriber(): boolean {
-  if (!isAnthropicAuthEnabled()) {
-    return false
-  }
-
-  return shouldUseClaudeAIAuth(getClaudeAIOAuthTokens()?.scopes)
+  // Simplified: No subscription users, always return false
+  return false
 }
 
 /**
@@ -1619,24 +1616,12 @@ export function hasOpusAccess(): boolean {
 }
 
 export function getSubscriptionType(): SubscriptionType | null {
-  // Check for mock subscription type first (ANT-only testing)
-  if (shouldUseMockSubscription()) {
-    return getMockSubscriptionType()
-  }
-
-  if (!isAnthropicAuthEnabled()) {
-    return null
-  }
-  const oauthTokens = getClaudeAIOAuthTokens()
-  if (!oauthTokens) {
-    return null
-  }
-
-  return oauthTokens.subscriptionType ?? null
+  // Simplified: No subscription users
+  return null
 }
 
 export function isMaxSubscriber(): boolean {
-  return getSubscriptionType() === 'max'
+  return false
 }
 
 export function isTeamSubscriber(): boolean {
@@ -1644,10 +1629,7 @@ export function isTeamSubscriber(): boolean {
 }
 
 export function isTeamPremiumSubscriber(): boolean {
-  return (
-    getSubscriptionType() === 'team' &&
-    getRateLimitTier() === 'default_claude_max_5x'
-  )
+  return false
 }
 
 export function isEnterpriseSubscriber(): boolean {
@@ -1655,7 +1637,7 @@ export function isEnterpriseSubscriber(): boolean {
 }
 
 export function isProSubscriber(): boolean {
-  return getSubscriptionType() === 'pro'
+  return false
 }
 
 export function getRateLimitTier(): string | null {
@@ -1671,20 +1653,8 @@ export function getRateLimitTier(): string | null {
 }
 
 export function getSubscriptionName(): string {
-  const subscriptionType = getSubscriptionType()
-
-  switch (subscriptionType) {
-    case 'enterprise':
-      return 'Claude Enterprise'
-    case 'team':
-      return 'Claude Team'
-    case 'max':
-      return 'Claude Max'
-    case 'pro':
-      return 'Claude Pro'
-    default:
-      return 'Claude API'
-  }
+  // Simplified: No subscriptions
+  return 'API Usage'
 }
 
 /** Check if using third-party services (Bedrock or Vertex or Foundry) */

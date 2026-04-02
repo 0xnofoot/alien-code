@@ -1,4 +1,6 @@
-# 品牌与图标更改说明
+# Alien Code 定制化更改说明
+
+本文档记录了从原始 Claude Code 源码到 Alien Code 的所有定制化修改。
 
 ## 品牌更名
 
@@ -100,4 +102,110 @@ bun run build.ts
 
 ```bash
 CLAUDE_SIMPLE_LOGO=true node package/new-claude.js
+```
+
+## LLM 提供商动态显示
+
+移除了硬编码的 "Sonnet 4.5 · API Usage Billing" 显示，改为动态显示当前配置的 LLM 提供商信息。
+
+### 修改的文件
+
+1. **src/utils/logoV2Utils.ts**
+   - `getLogoDisplayData()` 函数：根据 `llm-source` 配置动态生成 `billingType`
+   - 支持 Anthropic API 和 OpenAI API 的 base_url 显示
+
+2. **src/utils/model/model.ts**
+   - `renderModelName()` 函数：根据 provider 返回实际配置的模型名称
+   - OpenAI provider 显示 OpenAI 模型名（如 gpt-4）
+   - Anthropic API 显示配置的 Anthropic 模型名
+
+### 显示效果
+
+**Anthropic API（默认）**：
+```
+Sonnet 4.5 · Anthropic API · api.anthropic.com
+```
+
+**Anthropic API（自定义 base_url）**：
+```
+Opus 4.6 · Anthropic API · custom.example.com
+```
+
+**OpenAI 提供商**：
+```
+gpt-4 · OpenAI API · api.openai.com
+```
+
+### 配置方式
+
+通过 `~/.claude/settings.json` 中的 `llm-source` 配置：
+
+```json
+{
+  "llm-source": {
+    "current": "openai",
+    "openai": {
+      "base_url": "https://api.openai.com/v1",
+      "api_key": "sk-...",
+      "model": "gpt-4"
+    }
+  }
+}
+```
+
+或通过环境变量：
+```bash
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4
+```
+
+## Anthropic 官方服务移除
+
+移除了所有与 Anthropic 官方服务相关的登录、鉴权、订阅、遥测代码，使项目完全独立运行。
+
+### 主要更改
+
+1. **src/utils/auth.ts** - 简化订阅检查函数
+   - `isClaudeAISubscriber()` → 始终返回 `false`
+   - `getSubscriptionType()` → 始终返回 `null`
+   - `getSubscriptionName()` → 返回 `'API Usage'`
+   - `isMaxSubscriber()` → 返回 `false`
+   - `isProSubscriber()` → 返回 `false`
+   - `isTeamPremiumSubscriber()` → 返回 `false`
+
+2. **src/services/analytics/index.ts** - 遥测服务空实现
+   - `logEvent()` → 空函数
+   - `logEventAsync()` → 空 Promise
+   - `attachAnalyticsSink()` → 空函数
+
+3. **移除的功能**
+   - OAuth 登录流程（`/login`、`/logout` 命令已移除）
+   - Claude 订阅验证
+   - 1P 事件日志上报
+   - Datadog 遥测
+   - GrowthBook feature flags（已替换为返回默认值）
+
+### 保留的功能
+
+- ✅ Anthropic API 调用（通过 `ANTHROPIC_API_KEY`）
+- ✅ OpenAI 兼容接口
+- ✅ 所有工具和命令（login/logout 除外）
+- ✅ MCP 服务器集成
+- ✅ 子 Agent 和多 Agent 协调
+
+### 使用方式
+
+只需设置 API key 即可使用：
+
+```bash
+# Anthropic API
+export ANTHROPIC_API_KEY=sk-ant-...
+node package/new-claude.js
+
+# OpenAI API
+export OPENAI_BASE_URL=https://api.openai.com/v1
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4
+node package/new-claude.js
 ```
