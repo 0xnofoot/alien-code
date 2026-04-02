@@ -1,5 +1,9 @@
 # Claude Code — 可构建源码（基于 2026-03-31 泄露版本）
 
+<p align="center">
+  <img src="assets/icon.jpg" alt="Alien Skater Logo" width="200"/>
+</p>
+
 > **2026 年 3 月 31 日，Anthropic 的 Claude Code CLI 完整源码通过 npm 包中暴露的 `.map` 文件泄露。**
 > 本 fork 在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，使其可以脱离 Anthropic 内部基础设施独立编译运行。
 
@@ -79,10 +83,12 @@ src/
 
 ### 前置要求
 
-| 工具 | 最低版本 | 用途 |
+| 工具 | 版本要求 | 用途 |
 |------|----------|------|
-| [Bun](https://bun.sh) | 1.2+ | 构建器（打包 + TypeScript 编译） |
+| [Bun](https://bun.sh) | **1.2.x** | 构建器（打包 + TypeScript 编译） |
 | Node.js | 18+ | 运行构建产物 |
+
+> ⚠️ **重要**: 必须使用 Bun 1.2.x（如 1.2.15），**不能使用 1.3.x 或更高版本**。Bun 1.3.x 的 bundler 存在 module 初始化顺序 bug，会导致运行时错误 `Hz is not defined`。
 
 > 构建过程**仅**需要 Bun；运行产物仅需要 Node.js，无需 Bun。
 
@@ -103,8 +109,12 @@ VERSION=2.1.88 bun run build.ts
 node package/new-claude.js --version
 # → 2.1.88 (Claude Code)
 
-# 5. 使用
+# 5. 使用 Anthropic API
 ANTHROPIC_API_KEY=sk-ant-xxx node package/new-claude.js --print "你好"
+
+# 或使用 OpenAI 兼容接口
+OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://api.openai.com/v1 \
+  node package/new-claude.js /llm-source  # 在交互模式中切换
 ```
 
 ### 开发构建
@@ -236,8 +246,9 @@ Promise.resolve()
 #### 保留的核心功能
 以下功能**完整保留**，未做任何修改：
 - `ANTHROPIC_API_KEY` → `getAnthropicApiKey()` → `getAuthHeaders()` → Anthropic SDK → API 调用
+- **OpenAI 兼容接口**：通过 fetch 层代理实现 Anthropic ↔ OpenAI 格式转换（`src/services/api/openaiProxy.ts`）
 - 所有 40+ 工具（BashTool、FileReadTool、GrepTool、AgentTool 等）
-- 所有斜杠命令（`/commit`、`/review`、`/compact` 等，login/logout 除外）
+- 所有斜杠命令（`/commit`、`/review`、`/compact`、`/llm-source` 等，login/logout 除外）
 - MCP 服务器集成
 - 子 Agent 与多 Agent 协调
 - Skill 系统
@@ -257,9 +268,85 @@ Promise.resolve()
 node --version  # 需要 v18+
 ```
 
+**运行时报 `Hz is not defined` 或初始化错误**
+
+检查 Bun 版本，确保使用 1.2.x：
+```bash
+bun --version  # 必须是 1.2.x，不能是 1.3.x
+```
+
+如果已安装 1.3.x，需要降级到 1.2.15：
+```bash
+# macOS/Linux
+curl -fsSL https://bun.sh/install | bash -s "bun-v1.2.15"
+
+# 或使用 npm
+npm install -g bun@1.2.15
+```
+
 **`--print` 模式挂起不退出**
 
 确认使用的是本 fork 的构建产物（已修复 sandbox 退出问题）。
+
+---
+
+## OpenAI 兼容接口
+
+本 fork 保留了完整的 OpenAI 兼容接口功能，允许使用任何 OpenAI 格式的 API 端点（包括 OpenAI、Azure OpenAI、本地模型等）。
+
+### 架构
+
+- **配置管理**: `src/utils/llmProvider.ts` - 提供商切换和配置读取
+- **格式转换**: `src/services/api/openaiProxy.ts` - 在 fetch 层拦截 Anthropic SDK 请求，透明转换为 OpenAI chat/completions 格式
+- **用户界面**: `src/commands/llm-source/` - `/llm-source` 交互式切换命令
+
+### 配置方式
+
+有三种方式配置 OpenAI 端点：
+
+#### 1. 环境变量（临时）
+
+```bash
+export OPENAI_API_KEY="sk-xxx"
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export OPENAI_MODEL="gpt-4"
+
+node package/new-claude.js
+```
+
+#### 2. 配置文件（持久化）
+
+编辑 `~/.claude/settings.json`：
+
+```json
+{
+  "llm-source": {
+    "current": "openai",
+    "openai": {
+      "base_url": "https://api.openai.com/v1",
+      "api_key": "sk-xxx",
+      "model": "gpt-4",
+      "max_tokens": 4096
+    }
+  }
+}
+```
+
+#### 3. 交互式命令（推荐）
+
+运行 `/llm-source` 命令在 UI 中切换提供商，配置会自动保存到用户设置。
+
+### 支持的端点
+
+理论上支持任何 OpenAI chat/completions 格式的端点：
+- OpenAI 官方 API
+- Azure OpenAI
+- 本地 LLM 服务（Ollama、LM Studio、vLLM 等）
+- 第三方兼容服务
+
+### 配置优先级
+
+`settings.json "llm-source".{provider}.xxx` → 环境变量 → 默认值
 
 ---
 
@@ -304,6 +391,7 @@ User-facing slash commands invoked with `/` prefix.
 | `/commit` | Create a git commit |
 | `/review` | Code review |
 | `/compact` | Context compression |
+| `/llm-source` | Switch between Anthropic/OpenAI providers |
 | `/mcp` | MCP server management |
 | `/config` | Settings management |
 | `/doctor` | Environment diagnostics |
@@ -327,6 +415,8 @@ User-facing slash commands invoked with `/` prefix.
 | Service | Description |
 |---|---|
 | `api/` | Anthropic API client, file API, bootstrap |
+| `api/openaiProxy.ts` | OpenAI 兼容层（fetch 层拦截和格式转换） |
+| `api/client.ts` | API client 工厂（根据 provider 选择） |
 | `mcp/` | Model Context Protocol server connection and management |
 | `oauth/` | OAuth 2.0 authentication flow |
 | `lsp/` | Language Server Protocol manager |
@@ -436,6 +526,48 @@ Reusable workflows defined in `skills/` and executed through `SkillTool`. Users 
 ### Plugin Architecture
 
 Built-in and third-party plugins are loaded through the `plugins/` subsystem.
+
+---
+
+## 开发工作流
+
+### 修改源码后的标准流程
+
+⚠️ **重要**: 每次修改 `src/` 目录下的任何文件后，必须重新构建才能生效。
+
+```bash
+# 1. 修改源码
+vim src/commands/example/index.ts
+
+# 2. 重新构建
+bun run build.ts
+
+# 3. 测试
+node package/new-claude.js --print "测试"
+```
+
+### 添加新功能
+
+- **新工具**: 在 `src/tools/NewTool/` 创建，并在 `src/tools.ts` 注册
+- **新命令**: 在 `src/commands/new-command/` 创建，并在 `src/commands.ts` 注册
+- **新服务**: 在 `src/services/newService/` 创建
+
+### 模块导入约定
+
+- 所有 import 使用 `.js` 扩展名（TypeScript ESM 约定），磁盘文件是 `.ts`/`.tsx`
+- 支持 `src/*` 绝对路径导入（不需要 `../../` 相对路径）
+- 构建插件自动处理路径解析
+
+### 常见修复
+
+**修复了 `normalizeMessages` 崩溃**
+- **位置**: `src/utils/messages.ts`
+- **问题**: 缺少 `default` 分支导致 `undefined` 进入数组
+- **修复**: 添加 `default: return []` 和 null 检查
+
+**`/llm-source` 命令类型**
+- **类型**: 必须为 `local-jsx`（不是 `local`）
+- **文件**: 实现文件必须是 `.tsx`
 
 ---
 

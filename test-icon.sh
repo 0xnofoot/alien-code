@@ -1,0 +1,22 @@
+#!/bin/bash
+# 测试脚本：展示新的滑板外星人图标
+
+echo "================================"
+echo "  Claude Code 滑板外星人图标"
+echo "================================"
+echo ""
+echo "启动 Claude Code 查看新图标..."
+echo ""
+echo "使用方法："
+echo "  ANTHROPIC_API_KEY=your-key node package/new-claude.js"
+echo ""
+echo "或查看版本（不需要 API key）："
+echo "  node package/new-claude.js --version"
+echo ""
+echo "图标颜色："
+echo "  - 外星人：绿色 (rgb(102,204,102))"
+echo "  - 滑板：粉色"
+echo ""
+echo "环境变量："
+echo "  CLAUDE_SIMPLE_LOGO=true  # 使用简化版 ASCII art"
+echo ""
