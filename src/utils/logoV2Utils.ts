@@ -1,7 +1,6 @@
 import { getDirectConnectServerUrl, getSessionId } from '../bootstrap/state.js'
 import { stringWidth } from '../ink/stringWidth.js'
 import type { LogOption } from '../types/logs.js'
-import { getSubscriptionName, isClaudeAISubscriber } from './auth.js'
 import { getCwd } from './cwd.js'
 import { getDisplayPath } from './file.js'
 import {
@@ -13,6 +12,11 @@ import { getStoredChangelogFromMemory, parseChangelog } from './releaseNotes.js'
 import { gt } from './semver.js'
 import { loadMessageLogs } from './sessionStorage.js'
 import { getInitialSettings } from './settings/settings.js'
+import {
+  getLLMProvider,
+  getOpenAIBaseURL,
+  getOpenAIModel,
+} from './llmProvider.js'
 
 // Layout constants
 const MAX_LEFT_WIDTH = 50
@@ -253,9 +257,28 @@ export function getLogoDisplayData(): {
   const cwd = serverUrl
     ? `${displayPath} in ${serverUrl.replace(/^https?:\/\//, '')}`
     : displayPath
-  const billingType = isClaudeAISubscriber()
-    ? getSubscriptionName()
-    : 'API Usage Billing'
+
+  // Get LLM provider info
+  const provider = getLLMProvider()
+  let billingType: string
+
+  if (provider === 'openai') {
+    // Show OpenAI provider info (domain only, model name is shown separately)
+    const baseUrl = getOpenAIBaseURL()
+    const domain = baseUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+    billingType = `OpenAI API · ${domain}`
+  } else {
+    // Show Anthropic API info
+    const { getAnthropicBaseURL } = require('./llmProvider.js')
+    const baseUrl = getAnthropicBaseURL()
+    if (baseUrl) {
+      const domain = baseUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+      billingType = `Anthropic API · ${domain}`
+    } else {
+      billingType = 'Anthropic API · api.anthropic.com'
+    }
+  }
+
   const agentName = getInitialSettings().agent
 
   return {

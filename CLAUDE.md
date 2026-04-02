@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是 Claude Code CLI 的可构建源码仓库，基于 2026-03-31 从 Anthropic npm 包泄露的源码。本仓库在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，可以脱离 Anthropic 内部基础设施独立编译运行。
+这是 Alien Code CLI（原 Claude Code）的可构建源码仓库，基于 2026-03-31 从 Anthropic npm 包泄露的源码。本仓库在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，可以脱离 Anthropic 内部基础设施独立编译运行。
 
 **技术栈**: TypeScript (strict) + React/Ink + Bun 打包 + Zod 4
 

@@ -393,6 +393,29 @@ function maskModelCodename(baseName: string): string {
 }
 
 export function renderModelName(model: ModelName): string {
+  // Check if using custom LLM provider
+  const provider = getAPIProvider()
+
+  if (provider === 'openai') {
+    // For OpenAI provider, return the OpenAI model name directly
+    const { getLLMProvider, getOpenAIModel } = require('../llmProvider.js')
+    if (getLLMProvider() === 'openai') {
+      return getOpenAIModel()
+    }
+  }
+
+  // For Anthropic API, check if using custom model
+  const { getAnthropicModel } = require('../llmProvider.js')
+  const configuredModel = getAnthropicModel()
+  if (configuredModel && configuredModel !== model) {
+    // User has configured a specific model, use it instead of the default display name
+    const publicName = getPublicModelDisplayName(configuredModel)
+    if (publicName) {
+      return publicName
+    }
+    return configuredModel
+  }
+
   const publicName = getPublicModelDisplayName(model)
   if (publicName) {
     return publicName

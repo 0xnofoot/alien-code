@@ -152,7 +152,7 @@ export const description = ""
 export const prompt = ""
 `
 
-console.log(`Building Claude Code v${VERSION} (${isDev ? 'dev' : 'production'})...`)
+console.log(`Building Alien Code v${VERSION} (${isDev ? 'dev' : 'production'})...`)
 
 const result = await Bun.build({
   entrypoints: ['./src/entrypoints/cli.tsx'],

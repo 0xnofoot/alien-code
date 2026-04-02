@@ -1,8 +1,37 @@
+# 品牌与图标更改说明
+
+## 品牌更名
+
+项目已从 "Claude Code" 更名为 **"Alien Code"**，以配合新的滑板外星人主题。
+
+### 修改的文件
+
+**品牌名称**：
+- `src/entrypoints/cli.tsx` - 版本输出（`--version`）
+- `src/main.tsx` - 帮助信息描述
+- `src/components/LogoV2/WelcomeV2.tsx` - 欢迎界面标题
+- `src/components/LogoV2/LogoV2.tsx` - Logo 边框标题
+- `src/components/LogoV2/CondensedLogo.tsx` - 精简 Logo 标题
+- `src/components/LogoV2/feedConfigs.tsx` - Feed 配置文本
+- `src/components/HelpV2/HelpV2.tsx` - 帮助界面标题
+- `README.md` - 项目标题和描述
+- `CLAUDE.md` - 项目文档
+- `build.ts` - 构建脚本输出
+
+**验证**：
+```bash
+node package/new-claude.js --version
+# 输出: 0.0.1 (Alien Code)
+
+node package/new-claude.js --help
+# 显示: Alien Code - starts an interactive session...
+```
+
 # 图标更改说明
 
 ## 新图标
 
-Claude Code 的终端图标已从原始的 "Clawd" 角色替换为**滑板外星人**（Alien Skater）设计。
+Alien Code（原 Claude Code）的终端图标已从原始的 "Clawd" 角色替换为**滑板外星人**（Alien Skater）设计。
 
 ### 原始图片
 
