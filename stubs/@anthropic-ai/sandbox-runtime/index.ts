@@ -14,9 +14,19 @@ export type SandboxViolationEvent = Record<string, unknown>
 export const SandboxRuntimeConfigSchema = z.object({}).passthrough()
 
 export class SandboxViolationStore {
+  private listeners = new Set<(violations: SandboxViolationEvent[]) => void>()
+  private totalCount = 0
   getViolations() { return [] }
-  addViolation(_event: SandboxViolationEvent) {}
+  getCount() { return 0 }
+  getTotalCount() { return this.totalCount }
+  getViolationsForCommand(_command: string) { return [] }
+  addViolation(_event: SandboxViolationEvent) { this.totalCount++ }
   clear() {}
+  subscribe(listener: (violations: SandboxViolationEvent[]) => void) {
+    this.listeners.add(listener)
+    listener(this.getViolations())
+    return () => { this.listeners.delete(listener) }
+  }
 }
 
 export class SandboxManager {

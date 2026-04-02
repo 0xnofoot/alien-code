@@ -376,6 +376,36 @@ export const SettingsSchema = lazySchema(() =>
         .string()
         .optional()
         .describe('Override the default model used by Claude Code'),
+      models: z
+        .object({
+          anthropic: z.array(z.string()).optional(),
+          openai: z.array(z.string()).optional(),
+        })
+        .optional()
+        .describe(
+          'Per-provider model lists for /models command: {anthropic: [...], openai: [...]}',
+        ),
+      'llm-source': z
+        .object({
+          current: z.enum(['anthropic', 'openai']).optional(),
+          openai: z
+            .object({
+              base_url: z.string().optional(),
+              api_key: z.string().optional(),
+              model: z.string().optional(),
+              max_tokens: z.number().optional(),
+            })
+            .optional(),
+          anthropic: z
+            .object({
+              base_url: z.string().optional(),
+              api_key: z.string().optional(),
+              model: z.string().optional(),
+            })
+            .optional(),
+        })
+        .optional()
+        .describe('LLM provider configuration with per-provider settings'),
       // Enterprise allowlist of models
       availableModels: z
         .array(z.string())

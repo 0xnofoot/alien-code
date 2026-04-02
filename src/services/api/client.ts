@@ -10,6 +10,8 @@ import {
   refreshAndGetAwsCredentials,
   refreshGcpCredentialsIfNeeded,
 } from 'src/utils/auth.js'
+import { isOpenAIProvider } from '../../utils/llmProvider.js'
+import { createOpenAIProxyFetch } from './openaiProxy.js'
 import { getUserAgent } from 'src/utils/http.js'
 import { getSmallFastModel } from 'src/utils/model/model.js'
 import {
@@ -138,6 +140,11 @@ export async function getAnthropicClient({
 
   const resolvedFetch = buildFetch(fetchOverride, source)
 
+  // When OpenAI provider is active, use proxy fetch that converts Anthropic ↔ OpenAI formats
+  const finalFetch = isOpenAIProvider()
+    ? createOpenAIProxyFetch()
+    : resolvedFetch
+
   const ARGS = {
     defaultHeaders,
     maxRetries,
@@ -146,8 +153,8 @@ export async function getAnthropicClient({
     fetchOptions: getProxyFetchOptions({
       forAnthropicAPI: true,
     }) as ClientOptions['fetchOptions'],
-    ...(resolvedFetch && {
-      fetch: resolvedFetch,
+    ...(finalFetch && {
+      fetch: finalFetch,
     }),
   }
   if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
@@ -299,7 +306,9 @@ export async function getAnthropicClient({
 
   // Determine authentication method based on available tokens
   const clientConfig: ConstructorParameters<typeof Anthropic>[0] = {
-    apiKey: isClaudeAISubscriber() ? null : apiKey || getAnthropicApiKey(),
+    apiKey: isOpenAIProvider()
+      ? (process.env.OPENAI_API_KEY || 'openai-proxy-placeholder')
+      : (isClaudeAISubscriber() ? null : apiKey || getAnthropicApiKey()),
     authToken: isClaudeAISubscriber()
       ? getClaudeAIOAuthTokens()?.accessToken
       : undefined,

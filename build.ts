@@ -21,7 +21,7 @@ const outFile = join(outDir, 'new-claude.js')
 await mkdir(outDir, { recursive: true })
 
 const BUILD_TIME = new Date().toISOString()
-const VERSION = process.env.VERSION ?? '0.0.0-local'
+const VERSION = process.env.VERSION ?? '0.0.1'
 
 // ---------------------------------------------------------------------------
 // Feature flags — controls which code paths are included.
@@ -41,7 +41,7 @@ const featureFlags: Record<string, boolean> = {
   BG_SESSIONS: false,
   BREAK_CACHE_COMMAND: false,
   BRIDGE_MODE: true,
-  BUDDY: false,
+  BUDDY: true,
   BUILDING_CLAUDE_APPS: true,
   BUILTIN_EXPLORE_PLAN_AGENTS: true,
   BYOC_ENVIRONMENT_RUNNER: false,
