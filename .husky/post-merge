@@ -1,0 +1,18 @@
+#!/bin/sh
+# 当 git pull/merge 改变了依赖文件时，自动运行安全检查
+
+# 检查是否有依赖文件变更
+CHANGED_FILES="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+
+if echo "$CHANGED_FILES" | grep -qE "package.json|package-lock.json|bun.lock"; then
+  echo ""
+  echo "🔍 检测到依赖文件变更，正在运行供应链安全检查..."
+  echo ""
+
+  if [ -x "./check-supply-chain.sh" ]; then
+    ./check-supply-chain.sh
+  else
+    echo "⚠️  check-supply-chain.sh 不可执行或不存在"
+    exit 1
+  fi
+fi

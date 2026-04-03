@@ -18,7 +18,11 @@
   "scripts": {
     "build": "bun run build.ts",
     "build:dev": "bun run build.ts --dev",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "bash check-supply-chain.sh",
+    "preinstall": "echo '\n🔒 准备安装依赖，安装后将自动运行供应链安全检查...\n'",
+    "check-security": "bash check-supply-chain.sh",
+    "prepare": "bash check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
   },
   "dependencies": {
     "@alcalzone/ansi-tokenize": "^0.3.0",
@@ -144,5 +148,12 @@
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.14",
     "typescript": "^5.8.0"
+  },
+  "overrides": {
+    "audio-capture-napi": "npm:nonexistent-package@0.0.0",
+    "color-diff-napi": "npm:nonexistent-package@0.0.0",
+    "image-processor-napi": "npm:nonexistent-package@0.0.0",
+    "modifiers-napi": "npm:nonexistent-package@0.0.0",
+    "url-handler-napi": "npm:nonexistent-package@0.0.0"
   }
 }

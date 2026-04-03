@@ -1,0 +1,19 @@
+#!/bin/sh
+# 当切换分支后，检查依赖是否需要重新安装
+
+PREV_COMMIT=$1
+NEW_COMMIT=$2
+BRANCH_SWITCH=$3
+
+# 只在切换分支时检查（BRANCH_SWITCH=1）
+if [ "$BRANCH_SWITCH" = "1" ]; then
+  # 检查依赖文件是否改变
+  CHANGED_FILES="$(git diff --name-only $PREV_COMMIT $NEW_COMMIT)"
+
+  if echo "$CHANGED_FILES" | grep -qE "package.json|package-lock.json|bun.lock"; then
+    echo ""
+    echo "⚠️  依赖文件已改变，建议重新安装依赖："
+    echo "   bun install && npm run check-security"
+    echo ""
+  fi
+fi
