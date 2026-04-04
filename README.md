@@ -117,7 +117,7 @@ src/
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/0xnofoo/alien-code.git
+git clone https://github.com/0xnofoot/alien-code.git
 cd alien-code
 
 # 2. 安装依赖
