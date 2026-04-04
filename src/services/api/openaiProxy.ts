@@ -34,7 +34,18 @@ export function createOpenAIProxyFetch(): ClientOptions['fetch'] {
       return globalThis.fetch(input, init)
     }
 
-    const anthropicBody = JSON.parse(init?.body as string)
+    let anthropicBody: Record<string, unknown>
+    try {
+      anthropicBody = JSON.parse(init?.body as string)
+    } catch {
+      return new Response(
+        JSON.stringify({
+          type: 'error',
+          error: { type: 'invalid_request_error', message: 'Invalid request body' },
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      )
+    }
     const model = getOpenAIModel()
     const baseURL = getOpenAIBaseURL().replace(/\/$/, '')
     const apiKey = getOpenAIApiKey()
