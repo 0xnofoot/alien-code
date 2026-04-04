@@ -26,7 +26,7 @@
 $ npm install
 
 > @anthropic-ai/claude-code@2.1.88 postinstall
-> bash scripts/check-supply-chain.sh || exit 1
+> bash scripts/check-supply-chain.sh
 
 🔍 供应链安全检查...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -83,7 +83,7 @@ $ git checkout feature-branch
 Switched to branch 'feature-branch'
 
 ⚠️  依赖文件已改变，建议重新安装依赖：
-   bun install && npm run check-security
+   bun install
 ```
 
 ---
@@ -97,9 +97,6 @@ npm run check-security
 
 # 方式 2: 直接运行脚本
 ./scripts/check-supply-chain.sh
-
-# 方式 3: 直接运行脚本
-bash scripts/check-supply-chain.sh
 ```
 
 ---
@@ -111,13 +108,15 @@ bash scripts/check-supply-chain.sh
 ```json
 {
   "scripts": {
-    "preinstall": "echo '🔒 准备安装依赖，安装后将自动运行供应链安全检查...'",
-    "postinstall": "bash scripts/check-supply-chain.sh || exit 1",
+    "preinstall": "echo '\n🔒 准备安装依赖，安装后将自动运行供应链安全检查...\n'",
+    "postinstall": "bash scripts/check-supply-chain.sh",
     "check-security": "bash scripts/check-supply-chain.sh",
-    "prepare": "bash scripts/check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
+    "prepare": "git config core.hooksPath .husky 2>/dev/null || true"
   }
 }
 ```
+
+> `prepare` 脚本在 `npm install` / `bun install` 后自动将 `.husky/` 注册为 Git hooks 目录，确保 post-merge 和 post-checkout 钩子对新克隆的仓库自动生效。
 
 ### Git Hooks 配置
 
@@ -134,7 +133,7 @@ bash scripts/check-supply-chain.sh
 $ npm install
 
 > postinstall
-> bash scripts/check-supply-chain.sh || exit 1
+> bash scripts/check-supply-chain.sh
 
 🔍 供应链安全检查...
   ❌ 发现可疑包目录: node_modules/audio-capture-napi
@@ -157,11 +156,11 @@ $ npm install
 $ git pull
 
 🔍 检测到依赖文件变更，正在运行供应链安全检查...
-  ❌ 在 package-lock.json 中发现: color-diff-napi
+  ❌ 发现可疑包目录: node_modules/color-diff-napi
 ```
 
 **解决方案**：
-1. **不要** 运行 `npm install`
+1. **不要** 运行 `npm install` 或 `bun install`
 2. 检查是否有人提交了恶意更改：`git log -p package.json`
 3. 如果是误操作，回滚：`git revert HEAD`
 4. 如果是恶意提交，报告给团队并回滚到安全版本
@@ -226,12 +225,14 @@ ls -la .husky/post-merge .husky/post-checkout
 
 | 防护层 | 触发时机 | 自动/手动 | 阻止安装 |
 |--------|----------|-----------|----------|
-| package.json overrides | npm 解析依赖时 | 自动 | ✅ |
+| package.json overrides | npm/bun 解析依赖时 | 自动 | ✅ |
 | build.ts stub 系统 | 构建时 | 自动 | ✅ |
-| postinstall 钩子 | npm install 后 | 自动 | ✅ |
+| postinstall 钩子 | npm/bun install 后 | 自动 | ⚠️ (安装后检测并报错) |
 | post-merge 钩子 | git pull/merge 后 | 自动 | ❌ (仅警告) |
 | post-checkout 钩子 | git checkout 后 | 自动 | ❌ (仅提示) |
 | npm run check-security | 手动执行 | 手动 | ❌ (仅检查) |
+
+> **注意**：本项目通过 `.npmrc` 设置 `package-lock=false`，使用 Bun 作为主包管理器。因此检查脚本中涉及 `package-lock.json` 的检查项（检查 2 和检查 4）正常情况下不会触发，它们作为使用 npm 用户的额外防护层保留。
 
 **最强防护**：package.json overrides + postinstall 钩子（双重保障）
 

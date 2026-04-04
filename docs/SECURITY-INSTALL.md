@@ -23,27 +23,30 @@
 所有内部包通过 `build.ts` 映射到本地文件，**不从 npm 下载**：
 
 ```typescript
-// build.ts 第 137-139 行
+// build.ts — EXPLICIT_STUBS 映射表
 EXPLICIT_STUBS = {
   'color-diff-napi': `${ROOT}/stubs/color-diff-napi/index.ts`,
   'audio-capture-napi': `${ROOT}/stubs/audio-capture-napi/index.ts`,
   'modifiers-napi': `${ROOT}/stubs/modifiers-napi/index.ts`,
+  // ... 以及其他 @ant/* 内部包
 }
 ```
 
 ### 2. package.json Overrides
 
-已在 `package.json` 添加 `overrides` 字段，强制阻止这些包的任何版本安装：
+已在 `package.json` 添加 `overrides` 字段，将恶意包重定向到本地空包：
 
 ```json
 "overrides": {
-  "audio-capture-napi": "npm:nonexistent-package@0.0.0",
-  "color-diff-napi": "npm:nonexistent-package@0.0.0",
-  "image-processor-napi": "npm:nonexistent-package@0.0.0",
-  "modifiers-napi": "npm:nonexistent-package@0.0.0",
-  "url-handler-napi": "npm:nonexistent-package@0.0.0"
+  "audio-capture-napi": "file:./stubs/void-package",
+  "color-diff-napi": "file:./stubs/void-package",
+  "image-processor-napi": "file:./stubs/void-package",
+  "modifiers-napi": "file:./stubs/void-package",
+  "url-handler-napi": "file:./stubs/void-package"
 }
 ```
+
+> `file:./stubs/void-package` 指向仓库内的空包，确保 override 目标完全本地可控，不依赖任何外部 npm 包名。
 
 ### 3. npm 生命周期钩子（自动检测）⭐ 新增
 
@@ -51,9 +54,10 @@ EXPLICIT_STUBS = {
 
 ```json
 "scripts": {
-  "postinstall": "bash scripts/check-supply-chain.sh || exit 1",
+  "postinstall": "bash scripts/check-supply-chain.sh",
   "preinstall": "echo '🔒 准备安装依赖，安装后将自动运行供应链安全检查...'",
-  "check-security": "bash scripts/check-supply-chain.sh"
+  "check-security": "bash scripts/check-supply-chain.sh",
+  "prepare": "git config core.hooksPath .husky 2>/dev/null || true"
 }
 ```
 
@@ -66,7 +70,7 @@ EXPLICIT_STUBS = {
 
 ### 5. .npmrc 配置
 
-已更新 `.npmrc`，添加供应链防护注释。
+已设置 `package-lock=false`，避免 npm lock 文件与 Bun lock 文件冲突（本项目使用 Bun 作为主包管理器）。这意味着正常情况下不会生成 `package-lock.json`，安全检查脚本中涉及 `package-lock.json` 的检查项（检查 2 和检查 4）仅在用户覆盖此配置时作为额外防护层生效。
 
 ### 6. 自动检查脚本
 
@@ -90,7 +94,7 @@ bun install
 # ✓ 如果发现问题，安装会失败并显示错误
 
 # 3. 构建项目
-bun run build
+VERSION=2.1.88 bun run build.ts
 ```
 
 **自动检测说明**：
@@ -101,9 +105,11 @@ bun run build
 
 **推荐方式**（允许我们的安全检查脚本运行）：
 
+> 注意：本项目 `.npmrc` 已设置 `package-lock=false`，npm install 不会生成 `package-lock.json`。
+
 ```bash
 # 1. 清理旧依赖
-rm -rf node_modules package-lock.json
+rm -rf node_modules
 
 # 2. 正常安装（会自动运行 postinstall 检查）
 npm install
@@ -111,7 +117,7 @@ npm install
 # ✓ 如果发现问题，安装会失败
 
 # 3. 构建项目
-bun run build
+VERSION=2.1.88 bun run build.ts
 ```
 
 ### 方法 3：使用 npm --ignore-scripts（最保守）
@@ -120,7 +126,7 @@ bun run build
 
 ```bash
 # 1. 清理旧依赖
-rm -rf node_modules package-lock.json
+rm -rf node_modules
 
 # 2. 禁用所有脚本安装
 npm install --ignore-scripts
@@ -134,12 +140,12 @@ npm run check-security
 npm rebuild sharp  # 仅示例
 
 # 5. 构建项目
-bun run build
+VERSION=2.1.88 bun run build.ts
 ```
 
 **注意**：使用 `--ignore-scripts` 会跳过我们的自动检查，需要手动运行 `npm run check-security`。
 
-### 方法 3：离线安装（最安全）
+### 方法 4：离线安装（最安全）
 
 如果您已有安全的 `node_modules`：
 

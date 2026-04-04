@@ -55,7 +55,7 @@
 
 ---
 
-## Directory Structure
+## 目录结构概览
 
 ```
 src/
@@ -117,8 +117,8 @@ src/
 
 ```bash
 # 1. 克隆仓库
-git clone <repo-url>
-cd claude-code
+git clone https://github.com/0xnofoo/alien-code.git
+cd alien-code
 
 # 2. 安装依赖
 bun install
@@ -143,7 +143,7 @@ OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://api.openai.com/v1 \
 开发模式不进行代码压缩，并生成 source map 便于调试：
 
 ```bash
-bun run build.ts --dev
+VERSION=2.1.88 bun run build.ts --dev
 ```
 
 ### 构建系统详解
@@ -219,21 +219,34 @@ const voiceCmd = feature('VOICE_MODE') ? require('./voice/index.js') : null
 // VOICE_MODE = false → 打包后完全消除，不包含 voice 相关代码
 ```
 
-当前启用的主要 Feature Flag（`true`）：
+当前启用的 Feature Flag（`true`，共 24 个）：
 
 | Flag | 功能 |
 |------|------|
-| `BRIDGE_MODE` | IDE 桥接（VS Code / JetBrains） |
-| `FORK_SUBAGENT` | 子 Agent 分叉 |
-| `BUILTIN_EXPLORE_PLAN_AGENTS` | 内置 Explore / Plan Agent |
-| `MCP_SKILLS` | MCP Skill 系统 |
-| `MCP_RICH_OUTPUT` | MCP 富文本输出 |
+| `AUTO_THEME` | 自动主题检测 |
 | `BASH_CLASSIFIER` | Bash 命令分类器 |
-| `ULTRATHINK` | 扩展思考模式 |
-| `TOKEN_BUDGET` | Token 预算控制 |
+| `BRIDGE_MODE` | IDE 桥接（VS Code / JetBrains） |
+| `BUDDY` | 伴侣精灵（Easter egg） |
+| `BUILDING_CLAUDE_APPS` | 构建 Claude 应用辅助 |
+| `BUILTIN_EXPLORE_PLAN_AGENTS` | 内置 Explore / Plan Agent |
+| `CACHED_MICROCOMPACT` | 缓存微压缩 |
+| `CCR_AUTO_CONNECT` | CCR 自动连接 |
+| `COMPACTION_REMINDERS` | 压缩提醒 |
+| `CONNECTOR_TEXT` | 连接器文本 |
+| `CONTEXT_COLLAPSE` | 上下文折叠 |
+| `FORK_SUBAGENT` | 子 Agent 分叉 |
 | `HISTORY_PICKER` | 历史会话选择器 |
-| `REACTIVE_COMPACT` | 响应式上下文压缩 |
+| `HISTORY_SNIP` | 历史片段 |
 | `HOOK_PROMPTS` | Hook 系统 |
+| `MCP_RICH_OUTPUT` | MCP 富文本输出 |
+| `MCP_SKILLS` | MCP Skill 系统 |
+| `MESSAGE_ACTIONS` | 消息操作 |
+| `NEW_INIT` | 新初始化流程 |
+| `QUICK_SEARCH` | 快速搜索 |
+| `REACTIVE_COMPACT` | 响应式上下文压缩 |
+| `STREAMLINED_OUTPUT` | 精简输出 |
+| `TOKEN_BUDGET` | Token 预算控制 |
+| `ULTRATHINK` | 扩展思考模式 |
 
 #### Bun DCE 产物修复
 
@@ -366,11 +379,11 @@ export OPENAI_MODEL="gpt-4"
 
 ---
 
-## 目录结构
+## 详细目录结构
 
-### 1. Tool System (`src/tools/`)
+### 1. 工具系统（`src/tools/`）
 
-Every tool Claude Code can invoke is implemented as a self-contained module. Each tool defines its input schema, permission model, and execution logic.
+每个工具都是独立模块，定义输入 schema、权限模型和执行逻辑。
 
 | Tool | Description |
 |---|---|
@@ -398,9 +411,9 @@ Every tool Claude Code can invoke is implemented as a self-contained module. Eac
 | `SleepTool` | Proactive mode wait |
 | `SyntheticOutputTool` | Structured output generation |
 
-### 2. Command System (`src/commands/`)
+### 2. 命令系统（`src/commands/`）
 
-User-facing slash commands invoked with `/` prefix.
+用户通过 `/` 前缀调用的斜杠命令。
 
 | Command | Description |
 |---|---|
@@ -411,7 +424,6 @@ User-facing slash commands invoked with `/` prefix.
 | `/mcp` | MCP server management |
 | `/config` | Settings management |
 | `/doctor` | Environment diagnostics |
-| `/login` / `/logout` | 已移除（OAuth 依赖 Anthropic 内部服务） |
 | `/memory` | Persistent memory management |
 | `/skills` | Skill management |
 | `/tasks` | Task management |
@@ -426,7 +438,7 @@ User-facing slash commands invoked with `/` prefix.
 | `/desktop` | Desktop app handoff |
 | `/mobile` | Mobile app handoff |
 
-### 3. Service Layer (`src/services/`)
+### 3. 服务层（`src/services/`）
 
 | Service | Description |
 |---|---|
@@ -445,103 +457,86 @@ User-facing slash commands invoked with `/` prefix.
 | `tokenEstimation.ts` | Token count estimation |
 | `teamMemorySync/` | Team memory synchronization |
 
-### 4. Bridge System (`src/bridge/`)
+### 4. Bridge 系统（`src/bridge/`）
 
-A bidirectional communication layer connecting IDE extensions (VS Code, JetBrains) with the Claude Code CLI.
+IDE 扩展（VS Code、JetBrains）与 CLI 的双向通信层。
 
-- `bridgeMain.ts` — Bridge main loop
-- `bridgeMessaging.ts` — Message protocol
-- `bridgePermissionCallbacks.ts` — Permission callbacks
-- `replBridge.ts` — REPL session bridge
-- `jwtUtils.ts` — JWT-based authentication
-- `sessionRunner.ts` — Session execution management
+- `bridgeMain.ts` — Bridge 主循环
+- `bridgeMessaging.ts` — 消息协议
+- `bridgePermissionCallbacks.ts` — 权限回调
+- `replBridge.ts` — REPL 会话桥接
+- `jwtUtils.ts` — JWT 认证
+- `sessionRunner.ts` — 会话执行管理
 
-### 5. Permission System (`src/hooks/toolPermission/`)
+### 5. 权限系统（`src/hooks/toolPermission/`）
 
-Checks permissions on every tool invocation. Either prompts the user for approval/denial or automatically resolves based on the configured permission mode (`default`, `plan`, `bypassPermissions`, `auto`, etc.).
+每次工具调用前检查权限。根据配置的权限模式（`default`、`plan`、`bypassPermissions`、`auto` 等）提示用户批准/拒绝或自动解析。
 
 ### 6. Feature Flags
 
-Dead code elimination via Bun's `bun:bundle` feature flags:
-
-```typescript
-import { feature } from 'bun:bundle'
-
-// Inactive code is completely stripped at build time
-const voiceCommand = feature('VOICE_MODE')
-  ? require('./commands/voice/index.js').default
-  : null
-```
-
-Notable flags: `PROACTIVE`, `KAIROS`, `BRIDGE_MODE`, `DAEMON`, `VOICE_MODE`, `AGENT_TRIGGERS`, `MONITOR_TOOL`
+通过 Bun 的 `bun:bundle` 实现编译时死代码消除，详见上方 [Feature Flag 死代码消除（DCE）](#feature-flag-死代码消除dce) 章节。
 
 ---
 
-## Key Files in Detail
+## 核心文件
 
-### `QueryEngine.ts` (~46K lines)
+### `QueryEngine.ts`（~46K 行）
 
-The core engine for LLM API calls. Handles streaming responses, tool-call loops, thinking mode, retry logic, and token counting.
+LLM API 调用核心引擎，处理流式响应、tool-call 循环、thinking mode、重试逻辑和 token 计数。
 
-### `Tool.ts` (~29K lines)
+### `Tool.ts`（~29K 行）
 
-Defines base types and interfaces for all tools — input schemas, permission models, and progress state types.
+所有工具的基础类型和接口定义——输入 schema、权限模型、进度状态。
 
-### `commands.ts` (~25K lines)
+### `commands.ts`（~25K 行）
 
-Manages registration and execution of all slash commands. Uses conditional imports to load different command sets per environment.
+所有斜杠命令的注册和执行管理，根据环境条件动态加载不同命令集。
 
 ### `main.tsx`
 
-Commander.js-based CLI parser + React/Ink renderer initialization. At startup, parallelizes MDM settings, keychain prefetch, and GrowthBook initialization for faster boot.
+Commander.js CLI 解析 + React/Ink 渲染初始化。启动时并行预取 MDM settings、keychain 以加快启动。
 
 ---
 
-## Tech Stack
+## 技术栈
 
-| Category | Technology |
+| 分类 | 技术 |
 |---|---|
-| Build / Runtime | [Bun](https://bun.sh)（构建时需要；产物为独立二进制，运行无需 Bun/Node） |
-| Language | TypeScript (strict) |
-| Terminal UI | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
-| CLI Parsing | [Commander.js](https://github.com/tj/commander.js) (extra-typings) |
-| Schema Validation | [Zod v4](https://zod.dev) |
-| Code Search | [ripgrep](https://github.com/BurntSushi/ripgrep) (via GrepTool) |
-| Protocols | [MCP SDK](https://modelcontextprotocol.io), LSP |
+| 构建/运行时 | [Bun](https://bun.sh)（构建时需要；产物为独立二进制，运行无需 Bun/Node） |
+| 语言 | TypeScript (strict) |
+| 终端 UI | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
+| CLI 解析 | [Commander.js](https://github.com/tj/commander.js) (extra-typings) |
+| Schema 校验 | [Zod v4](https://zod.dev) |
+| 代码搜索 | [ripgrep](https://github.com/BurntSushi/ripgrep)（通过 GrepTool） |
+| 协议 | [MCP SDK](https://modelcontextprotocol.io)、LSP |
 | API | [Anthropic SDK](https://docs.anthropic.com) |
-| Telemetry | OpenTelemetry + gRPC（本 fork 已剥离） |
+| 遥测 | OpenTelemetry + gRPC（本 fork 已剥离） |
 | Feature Flags | GrowthBook（本 fork 已替换为编译时常量） |
-| Auth | `ANTHROPIC_API_KEY` 环境变量 |
+| 认证 | `ANTHROPIC_API_KEY` 环境变量 |
 
 ---
 
-## Notable Design Patterns
+## 设计模式
 
-### Parallel Prefetch
+### 并行预取
 
-Startup time is optimized by prefetching MDM settings, keychain reads, and API preconnect in parallel — before heavy module evaluation begins.
+启动时并行预取 MDM settings、keychain 读取和 API 预连接，在重量级模块加载前完成。
 
-```typescript
-// main.tsx — fired as side-effects before other imports
-startMdmRawRead()
-startKeychainPrefetch()
-```
+### 惰性加载
 
-### Lazy Loading
+重量级模块（OpenTelemetry ~400KB、gRPC ~700KB）通过动态 `import()` 延迟到实际使用时加载。
 
-Heavy modules (OpenTelemetry ~400KB, gRPC ~700KB) are deferred via dynamic `import()` until actually needed.
+### Agent 协调
 
-### Agent Swarms
+子 Agent 通过 `AgentTool` 生成，`coordinator/` 处理多 Agent 协调。`TeamCreateTool` 支持团队级并行工作。
 
-Sub-agents are spawned via `AgentTool`, with `coordinator/` handling multi-agent orchestration. `TeamCreateTool` enables team-level parallel work.
+### Skill 系统
 
-### Skill System
+可复用工作流定义在 `skills/` 中，通过 `SkillTool` 执行。用户可添加自定义 Skill。
 
-Reusable workflows defined in `skills/` and executed through `SkillTool`. Users can add custom skills.
+### 插件架构
 
-### Plugin Architecture
-
-Built-in and third-party plugins are loaded through the `plugins/` subsystem.
+内置和第三方插件通过 `plugins/` 子系统加载。
 
 ---
 

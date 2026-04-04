@@ -50,7 +50,7 @@ npm run check-security        # 手动验证
 
 | 防护层 | 位置 | 状态 |
 |--------|------|------|
-| Build Stub | `build.ts` L137-139 | ✅ |
+| Build Stub | `build.ts` EXPLICIT_STUBS | ✅ |
 | Package Override | `package.json` overrides | ✅ |
 | **postinstall 钩子** ⭐ | `package.json` scripts | ✅ |
 | **Git Hooks** ⭐ | `.husky/post-merge` | ✅ |

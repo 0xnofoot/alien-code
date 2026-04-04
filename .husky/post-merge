@@ -12,7 +12,6 @@ if echo "$CHANGED_FILES" | grep -qE "package.json|package-lock.json|bun.lock"; t
   if [ -x "./scripts/check-supply-chain.sh" ]; then
     ./scripts/check-supply-chain.sh
   else
-    echo "⚠️  scripts/check-supply-chain.sh 不可执行或不存在"
-    exit 1
+    echo "⚠️  scripts/check-supply-chain.sh 不可执行或不存在，请手动运行安全检查"
   fi
 fi

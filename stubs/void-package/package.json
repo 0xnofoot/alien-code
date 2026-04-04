@@ -1,0 +1,6 @@
+{
+  "name": "void-package",
+  "version": "0.0.0",
+  "description": "Empty placeholder to block malicious npm packages via overrides",
+  "main": "index.js"
+}

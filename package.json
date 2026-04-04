@@ -1,9 +1,9 @@
 {
-  "name": "@anthropic-ai/claude-code",
+  "name": "alien-code",
   "version": "2.1.88",
   "type": "module",
   "bin": {
-    "claude": "package/cli.js"
+    "alien-code": "package/alien-code"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -11,9 +11,9 @@
   "author": "Anthropic <support@anthropic.com>",
   "license": "SEE LICENSE IN README.md",
   "description": "Use Claude, Anthropic's AI assistant, right from your terminal.",
-  "homepage": "https://github.com/anthropics/claude-code",
+  "homepage": "https://github.com/0xnofoo/alien-code",
   "bugs": {
-    "url": "https://github.com/anthropics/claude-code/issues"
+    "url": "https://github.com/0xnofoo/alien-code/issues"
   },
   "scripts": {
     "build": "bun run build.ts",
@@ -22,7 +22,7 @@
     "postinstall": "bash scripts/check-supply-chain.sh",
     "preinstall": "echo '\n🔒 准备安装依赖，安装后将自动运行供应链安全检查...\n'",
     "check-security": "bash scripts/check-supply-chain.sh",
-    "prepare": "bash scripts/check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
+    "prepare": "git config core.hooksPath .husky 2>/dev/null || true"
   },
   "dependencies": {
     "@alcalzone/ansi-tokenize": "^0.3.0",
@@ -150,10 +150,10 @@
     "typescript": "^5.8.0"
   },
   "overrides": {
-    "audio-capture-napi": "npm:nonexistent-package@0.0.0",
-    "color-diff-napi": "npm:nonexistent-package@0.0.0",
-    "image-processor-napi": "npm:nonexistent-package@0.0.0",
-    "modifiers-napi": "npm:nonexistent-package@0.0.0",
-    "url-handler-napi": "npm:nonexistent-package@0.0.0"
+    "audio-capture-napi": "file:./stubs/void-package",
+    "color-diff-napi": "file:./stubs/void-package",
+    "image-processor-napi": "file:./stubs/void-package",
+    "modifiers-napi": "file:./stubs/void-package",
+    "url-handler-napi": "file:./stubs/void-package"
   }
 }

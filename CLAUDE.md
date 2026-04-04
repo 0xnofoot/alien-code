@@ -59,7 +59,7 @@ bun run typecheck
 
 ### 核心引擎
 
-- **main.tsx**: CLI 入口，Commander.js 解析 + React/Ink 渲染初始化。启动时并行预取 MDM settings、keychain、GrowthBook 以加快启动
+- **main.tsx**: CLI 入口，Commander.js 解析 + React/Ink 渲染初始化。启动时并行预取 MDM settings、keychain 以加快启动
 - **QueryEngine.ts** (~46K 行): LLM API 调用核心引擎，处理流式响应、tool-call 循环、thinking mode、重试逻辑、token 计数
 - **Tool.ts**: 所有工具的基础类型和接口定义，包括输入 schema、权限模型、进度状态
 - **commands.ts**: 所有斜杠命令的注册和执行管理
@@ -133,7 +133,7 @@ IDE 扩展（VS Code、JetBrains）与 CLI 的双向通信层：
 
 通过 Bun 的 `bun:bundle` feature flags 实现死代码消除。源码中通过 `feature('FLAG_NAME')` 调用的条件分支在打包阶段被折叠消除。
 
-当前启用的主要标志：`BRIDGE_MODE`、`FORK_SUBAGENT`、`BUILTIN_EXPLORE_PLAN_AGENTS`、`MCP_SKILLS`、`BASH_CLASSIFIER`、`ULTRATHINK`、`TOKEN_BUDGET`、`HISTORY_PICKER`、`REACTIVE_COMPACT`、`HOOK_PROMPTS`
+当前启用的标志（共 24 个，完整列表见 `build.ts` 中 `featureFlags`）：`AUTO_THEME`、`BASH_CLASSIFIER`、`BRIDGE_MODE`、`BUDDY`、`BUILDING_CLAUDE_APPS`、`BUILTIN_EXPLORE_PLAN_AGENTS`、`CACHED_MICROCOMPACT`、`CCR_AUTO_CONNECT`、`COMPACTION_REMINDERS`、`CONNECTOR_TEXT`、`CONTEXT_COLLAPSE`、`FORK_SUBAGENT`、`HISTORY_PICKER`、`HISTORY_SNIP`、`HOOK_PROMPTS`、`MCP_RICH_OUTPUT`、`MCP_SKILLS`、`MESSAGE_ACTIONS`、`NEW_INIT`、`QUICK_SEARCH`、`REACTIVE_COMPACT`、`STREAMLINED_OUTPUT`、`TOKEN_BUDGET`、`ULTRATHINK`
 
 ## 构建系统详解
 
@@ -154,7 +154,11 @@ Anthropic 内部包通过 `stubs/` 目录的替代实现覆盖：
 |--------|-----------|------|
 | `@ant/claude-for-chrome-mcp` | `stubs/@ant/claude-for-chrome-mcp/` | Chrome 集成（空实现） |
 | `@ant/computer-use-mcp` | `stubs/@ant/computer-use-mcp/` | 计算机使用 MCP（空实现） |
+| `@ant/computer-use-input` | `stubs/@ant/computer-use-input/` | 输入控制（空实现） |
+| `@ant/computer-use-swift` | `stubs/@ant/computer-use-swift/` | macOS Swift 桥接（空实现） |
 | `color-diff-napi` | `stubs/color-diff-napi/` | 重定向到 TS 纯实现 |
+| `audio-capture-napi` | `stubs/audio-capture-napi/` | 音频捕获（空实现） |
+| `modifiers-napi` | `stubs/modifiers-napi/` | 键盘修饰键（空实现） |
 | `bun:bundle` | `stubs/bun-bundle/` | `feature()` DCE 函数（运行时返回 false） |
 | `bun:ffi` | `stubs/bun-ffi/` | Bun FFI API（空实现） |
 
@@ -247,5 +251,5 @@ bun --version  # 必须是 1.2.x，不能是 1.3.x
 
 ## 相关资源
 
-- 问题反馈：https://github.com/anthropics/claude-code/issues
+- 问题反馈：https://github.com/0xnofoo/alien-code/issues
 - 原始泄露发现者：[@Fried_rice](https://x.com/Fried_rice/status/2038894956459290963)
