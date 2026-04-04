@@ -204,7 +204,7 @@ mv node_modules node_modules.INFECTED-$(date +%Y%m%d-%H%M%S)
 
 ```bash
 # 删除构建产物
-rm -rf package/alien-code.js
+rm -rf package/alien-code
 
 # 删除锁文件
 rm -f package-lock.json bun.lock

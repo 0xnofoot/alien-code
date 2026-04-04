@@ -98,8 +98,8 @@ npm run check-security
 # 方式 2: 直接运行脚本
 ./scripts/check-supply-chain.sh
 
-# 方式 3: 测试所有检测机制
-./test-auto-detection.sh
+# 方式 3: 直接运行脚本
+bash scripts/check-supply-chain.sh
 ```
 
 ---
@@ -207,19 +207,18 @@ done
 
 ## 🧪 测试自动检测
 
-运行完整测试套件：
+手动验证各检测层：
 
 ```bash
-./test-auto-detection.sh
-```
+# 1. 验证检查脚本可执行
+./scripts/check-supply-chain.sh
 
-**测试内容**：
-1. ✓ postinstall 钩子配置
-2. ✓ 检查脚本存在且可执行
-3. ✓ 检查脚本运行成功
-4. ✓ npm 命令可用
-5. ✓ Git hooks 配置
-6. ✓ package.json overrides 配置
+# 2. 验证 postinstall 钩子
+npm run check-security
+
+# 3. 验证 Git hooks 存在
+ls -la .husky/post-merge .husky/post-checkout
+```
 
 ---
 
@@ -263,7 +262,6 @@ A: 影响极小（通常 < 1 秒）。检查脚本只扫描文件系统，不涉
 - 完整安全指南：`docs/SECURITY-INSTALL.md`
 - 快速参考：`docs/supply-chain-quickref.md`
 - 检查脚本源码：`scripts/check-supply-chain.sh`
-- 测试脚本：`test-auto-detection.sh`
 
 ---
 

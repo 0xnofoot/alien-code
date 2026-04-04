@@ -40,7 +40,6 @@ npm run check-security        # 手动验证
 
 ## ❌ 永远不要做的事
 
-- ❌ 不要运行 `npm install` 不带 `--ignore-scripts`
 - ❌ 不要在危险时段（2026-03-31 00:21-03:29 UTC）的锁文件上安装
 - ❌ 不要忽略检查脚本的警告
 - ❌ 不要手动安装 `*-napi` 包
@@ -56,7 +55,6 @@ npm run check-security        # 手动验证
 | **postinstall 钩子** ⭐ | `package.json` scripts | ✅ |
 | **Git Hooks** ⭐ | `.husky/post-merge` | ✅ |
 | 自动检查脚本 | `scripts/check-supply-chain.sh` | ✅ |
-| 测试脚本 | `test-auto-detection.sh` | ✅ |
 | 文档 | `docs/SECURITY-INSTALL.md` | ✅ |
 
 ---

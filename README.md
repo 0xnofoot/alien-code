@@ -1,7 +1,35 @@
-# Alien Code — 可构建源码（基于 2026-03-31 泄露版本）
+# Alien Code
 
-> **2026 年 3 月 31 日，Anthropic 的 Claude Code CLI 完整源码通过 npm 包中暴露的 `.map` 文件泄露。**
-> 本 fork 在原始泄露源码基础上完成了构建流程修复与私有依赖剥离，使其可以脱离 Anthropic 内部基础设施独立编译运行。
+> 基于 Claude Code 源码的独立构建 fork——脱离 Anthropic 基础设施，编译为独立二进制，支持 OpenAI 兼容接口。
+
+---
+
+## Alien Code vs Claude Code
+
+| | **Claude Code**（官方） | **Alien Code**（本 fork） |
+|---|---|---|
+| **获取方式** | `npm install -g @anthropic-ai/claude-code` | 从源码构建为独立二进制 |
+| **运行依赖** | Node.js 18+ | 无（独立二进制，内嵌 Bun 运行时） |
+| **LLM 提供商** | 仅 Anthropic API | Anthropic API **+ 任意 OpenAI 兼容端点** |
+| **遥测/分析** | Datadog、GrowthBook、1P 遥测 | 全部移除（零数据外泄） |
+| **登录认证** | Anthropic OAuth + API Key | 仅 API Key（无 OAuth 依赖） |
+| **Feature Flags** | 服务端 GrowthBook 控制 | 编译时常量（本地完全可控） |
+| **品牌** | Claude 品牌 + Clawd 图标 | Alien Skater 绿色外星人 |
+| **供应链安全** | npm 标准分发 | build-time stub 隔离 + postinstall 检查 |
+| **构建系统** | Anthropic 内部 CI | 公开 `build.ts`（Bun 两阶段构建） |
+| **代码可审计** | 混淆后的 JS bundle | 完整 TypeScript 源码 |
+
+### 核心差异详解
+
+**1. 独立二进制分发** — 构建产物是单一可执行文件（`package/alien-code`），内嵌 Bun 运行时，无需目标机安装 Node.js 或 Bun。支持交叉编译到 aarch64 等其他架构。
+
+**2. OpenAI 兼容接口** — 通过 fetch 层代理（`src/services/api/openaiProxy.ts`）透明转换 Anthropic SDK 请求为 OpenAI chat/completions 格式。可接入 OpenAI、Azure OpenAI、Ollama、LM Studio、vLLM 等任意兼容端点。
+
+**3. 零遥测** — 移除了全库 1,083 处 `logEvent` 调用、199 处 GrowthBook feature flag 调用、Datadog 上报代码和第一方遥测代码。不向任何外部服务发送使用数据。
+
+**4. 编译时 Feature Flag 控制** — 原版通过服务端 GrowthBook 动态控制功能开关，本 fork 将所有 flag 替换为编译时常量，在 `build.ts` 中配置，构建时通过死代码消除（DCE）彻底移除未启用的代码路径。
+
+**5. 私有依赖隔离** — 原版依赖多个 Anthropic 内部 npm 包（`@ant/*`、`*-napi`），本 fork 通过 `stubs/` 目录提供替代实现，构建时完全不从 npm 下载这些包。
 
 ---
 
@@ -13,17 +41,15 @@
 >
 > — [@Fried_rice, March 31, 2026](https://x.com/Fried_rice/status/2038894956459290963)
 
-npm 包中的 source map 文件包含了指向完整未混淆 TypeScript 源码的引用，可从 Anthropic 的 R2 存储桶下载为 zip 压缩包。
+2026 年 3 月 31 日，Anthropic 发布的 npm 包中包含了 source map 文件，指向完整未混淆的 TypeScript 源码，可从 Anthropic 的 R2 存储桶下载。
 
 ---
 
 ## 概览
 
-Alien Code（原 Claude Code）是 Anthropic 的官方 CLI 工具，允许用户直接在终端与 Claude 交互，完成软件工程任务——编辑文件、执行命令、搜索代码库、管理 Git 工作流等。
-
-- **泄露日期**: 2026-03-31
+- **基础**: Claude Code CLI v2.1.88 源码（2026-03-31 泄露）
 - **语言**: TypeScript（strict 模式）
-- **构建运行时**: Bun
+- **构建**: Bun 1.2.x（两阶段：bundle → 独立二进制）
 - **终端 UI**: React + [Ink](https://github.com/vadimdemedes/ink)
 - **规模**: ~1,900 文件，512,000+ 行代码
 
@@ -81,12 +107,11 @@ src/
 
 | 工具 | 版本要求 | 用途 |
 |------|----------|------|
-| [Bun](https://bun.sh) | **1.2.x** | 构建器（打包 + TypeScript 编译） |
-| Node.js | 18+ | 运行构建产物 |
+| [Bun](https://bun.sh) | **1.2.x** | 构建器（打包 + 编译为独立二进制） |
 
 > ⚠️ **重要**: 必须使用 Bun 1.2.x（如 1.2.15），**不能使用 1.3.x 或更高版本**。Bun 1.3.x 的 bundler 存在 module 初始化顺序 bug，会导致运行时错误 `Hz is not defined`。
 
-> 构建过程**仅**需要 Bun；运行产物仅需要 Node.js，无需 Bun。
+> 构建产物是独立二进制文件，运行时**不需要** Node.js 或 Bun。
 
 ### 快速开始
 
@@ -98,19 +123,19 @@ cd claude-code
 # 2. 安装依赖
 bun install
 
-# 3. 生产构建（输出到 package/alien-code.js）
+# 3. 生产构建（输出到 package/alien-code）
 VERSION=2.1.88 bun run build.ts
 
 # 4. 验证构建产物
-node package/alien-code.js --version
+./package/alien-code --version
 # → 2.1.88 (Alien Code)
 
 # 5. 使用 Anthropic API
-ANTHROPIC_API_KEY=sk-ant-xxx node package/alien-code.js --print "你好"
+ANTHROPIC_API_KEY=sk-ant-xxx ./package/alien-code --print "你好"
 
 # 或使用 OpenAI 兼容接口
 OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://api.openai.com/v1 \
-  node package/alien-code.js /llm-source  # 在交互模式中切换
+  ./package/alien-code /llm-source  # 在交互模式中切换
 ```
 
 ### 开发构建
@@ -118,19 +143,19 @@ OPENAI_API_KEY=sk-xxx OPENAI_BASE_URL=https://api.openai.com/v1 \
 开发模式不进行代码压缩，并生成 source map 便于调试：
 
 ```bash
-VERSION=2.1.88 bun run build.ts --dev
+bun run build.ts --dev
 ```
 
 ### 构建系统详解
 
-构建入口是 `build.ts`，使用 **Bun 的原生打包 API**（`Bun.build()`）将整个 TypeScript 项目打包为单一 ESM 文件。
+构建入口是 `build.ts`，采用两阶段构建流程：先用 **Bun 的原生打包 API**（`Bun.build()`）将 TypeScript 项目打包为中间 ESM 文件，再用 `bun build --compile` 编译为独立可执行二进制。
 
 #### 构建流程
 
 ```
 src/entrypoints/cli.tsx          ← 构建入口
         ↓
-  Bun.build() 插件管道
+  Phase 1: Bun.build() 插件管道
         ↓
   ┌─────────────────────────────────┐
   │  Plugin 1: js-to-ts-abs        │  .js 扩展名 → .ts 文件解析
@@ -143,7 +168,9 @@ src/entrypoints/cli.tsx          ← 构建入口
         ↓
   Bun DCE 产物修复（语法修补）
         ↓
-package/alien-code.js            ← 最终产物（~15 MB ESM）
+  Phase 2: bun build --compile
+        ↓
+package/alien-code               ← 最终产物（独立二进制，~115 MB）
 ```
 
 #### 插件 1：`js-to-ts-abs` — .js → .ts 路径重写
@@ -220,14 +247,14 @@ Promise.resolve().then(() => )
 Promise.resolve()
 ```
 
-`build.ts` 在写入文件前用正则表达式自动修复该问题。
+`build.ts` 在中间 JS 文件上用正则表达式自动修复该问题，然后再编译为二进制。
 
 ### 本 Fork 相对原始泄露版本的改动
 
-原始泄露源码无法直接构建，本 fork 做了以下修改：
+原始泄露源码无法直接构建，本 fork 做了以下修改（完整对比见顶部 [Alien Code vs Claude Code](#alien-code-vs-claude-code) 表格）：
 
 #### 构建修复
-- 添加 `build.ts` 构建脚本（原始版本依赖 Anthropic 内部构建系统）
+- 添加 `build.ts` 两阶段构建脚本（bundle → 独立二进制），替换 Anthropic 内部构建系统
 - 添加 `stubs/` 目录替换私有 npm 包
 - 修复 `--print` 模式永久挂起问题（sandbox 进程未退出）
 
@@ -256,13 +283,6 @@ Promise.resolve()
 **构建报 `File not found` 错误**
 
 检查缺失文件是否在 `stubs/` 中有对应条目，或在 `build.ts` 的 `EXPLICIT_STUBS` 中补充映射。
-
-**运行时报 `Cannot find module`**
-
-构建产物是 ESM 格式，需要 Node.js 18+：
-```bash
-node --version  # 需要 v18+
-```
 
 **运行时报 `Hz is not defined` 或初始化错误**
 
@@ -307,7 +327,7 @@ export OPENAI_API_KEY="sk-xxx"
 export OPENAI_BASE_URL="https://api.openai.com/v1"
 export OPENAI_MODEL="gpt-4"
 
-node package/alien-code.js
+./package/alien-code
 ```
 
 #### 2. 配置文件（持久化）
@@ -481,7 +501,7 @@ Commander.js-based CLI parser + React/Ink renderer initialization. At startup, p
 
 | Category | Technology |
 |---|---|
-| Runtime | [Bun](https://bun.sh) |
+| Build / Runtime | [Bun](https://bun.sh)（构建时需要；产物为独立二进制，运行无需 Bun/Node） |
 | Language | TypeScript (strict) |
 | Terminal UI | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
 | CLI Parsing | [Commander.js](https://github.com/tj/commander.js) (extra-typings) |
@@ -539,7 +559,7 @@ vim src/commands/example/index.ts
 bun run build.ts
 
 # 3. 测试
-node package/alien-code.js --print "测试"
+./package/alien-code --print "测试"
 ```
 
 ### 添加新功能

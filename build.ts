@@ -6,7 +6,7 @@
  *   bun run build.ts           # production build
  *   bun run build.ts --dev     # development build (no minify, with sourcemap)
  *
- * Output: package/alien-code.js
+ * Output: package/alien-code (standalone binary)
  */
 
 import { existsSync } from 'fs'
