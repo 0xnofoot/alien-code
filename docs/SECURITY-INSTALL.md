@@ -51,9 +51,9 @@ EXPLICIT_STUBS = {
 
 ```json
 "scripts": {
-  "postinstall": "bash check-supply-chain.sh || exit 1",
+  "postinstall": "bash scripts/check-supply-chain.sh || exit 1",
   "preinstall": "echo '🔒 准备安装依赖，安装后将自动运行供应链安全检查...'",
-  "check-security": "bash check-supply-chain.sh"
+  "check-security": "bash scripts/check-supply-chain.sh"
 }
 ```
 
@@ -70,7 +70,7 @@ EXPLICIT_STUBS = {
 
 ### 6. 自动检查脚本
 
-提供 `check-supply-chain.sh` 脚本，用于检测是否安装了恶意包。
+提供 `scripts/check-supply-chain.sh` 脚本，用于检测是否安装了恶意包。
 
 ---
 
@@ -128,7 +128,7 @@ npm install --ignore-scripts
 # 3. 手动运行安全检查
 npm run check-security
 # 或
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 
 # 4. 手动运行必要的构建脚本（如果需要）
 npm rebuild sharp  # 仅示例
@@ -152,7 +152,7 @@ rm -rf node_modules
 tar xzf node_modules-safe-YYYYMMDD.tar.gz
 
 # 3. 验证
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 ```
 
 ---
@@ -162,7 +162,7 @@ tar xzf node_modules-safe-YYYYMMDD.tar.gz
 ### 运行完整检查
 
 ```bash
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 ```
 
 ### 手动检查命令
@@ -188,7 +188,7 @@ find node_modules -name "package.json" -exec grep -l "pacifier136" {} \;
 
 ## 🚨 如果发现投毒包
 
-如果 `check-supply-chain.sh` 报告发现可疑包：
+如果 `scripts/check-supply-chain.sh` 报告发现可疑包：
 
 ### 1. 立即隔离
 
@@ -254,7 +254,7 @@ history | grep -E "curl|wget|nc|bash -c"
 
 ```bash
 # 完整检查（推荐）
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 
 # 快速检查
 [ ! -d "node_modules/audio-capture-napi" ] && \

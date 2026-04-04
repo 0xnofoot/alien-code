@@ -26,7 +26,7 @@
 $ npm install
 
 > @anthropic-ai/claude-code@2.1.88 postinstall
-> bash check-supply-chain.sh || exit 1
+> bash scripts/check-supply-chain.sh || exit 1
 
 🔍 供应链安全检查...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -96,7 +96,7 @@ Switched to branch 'feature-branch'
 npm run check-security
 
 # 方式 2: 直接运行脚本
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 
 # 方式 3: 测试所有检测机制
 ./test-auto-detection.sh
@@ -112,9 +112,9 @@ npm run check-security
 {
   "scripts": {
     "preinstall": "echo '🔒 准备安装依赖，安装后将自动运行供应链安全检查...'",
-    "postinstall": "bash check-supply-chain.sh || exit 1",
-    "check-security": "bash check-supply-chain.sh",
-    "prepare": "bash check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
+    "postinstall": "bash scripts/check-supply-chain.sh || exit 1",
+    "check-security": "bash scripts/check-supply-chain.sh",
+    "prepare": "bash scripts/check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
   }
 }
 ```
@@ -134,7 +134,7 @@ npm run check-security
 $ npm install
 
 > postinstall
-> bash check-supply-chain.sh || exit 1
+> bash scripts/check-supply-chain.sh || exit 1
 
 🔍 供应链安全检查...
   ❌ 发现可疑包目录: node_modules/audio-capture-napi
@@ -147,7 +147,7 @@ $ npm install
 2. 删除 node_modules：`rm -rf node_modules`
 3. 清理缓存：`npm cache clean --force`
 4. 重新安装：`bun install` 或 `npm install`
-5. 检查文档：`SECURITY-INSTALL.md`
+5. 检查文档：`docs/SECURITY-INSTALL.md`
 
 ---
 
@@ -186,7 +186,7 @@ npm run check-security
 
 ### 自定义检查脚本
 
-编辑 `check-supply-chain.sh` 添加额外检查：
+编辑 `scripts/check-supply-chain.sh` 添加额外检查：
 
 ```bash
 # 添加自定义包检查
@@ -260,9 +260,9 @@ A: 影响极小（通常 < 1 秒）。检查脚本只扫描文件系统，不涉
 
 ## 🔗 相关文档
 
-- 完整安全指南：`SECURITY-INSTALL.md`
-- 快速参考：`.github-防投毒速查卡.md`
-- 检查脚本源码：`check-supply-chain.sh`
+- 完整安全指南：`docs/SECURITY-INSTALL.md`
+- 快速参考：`docs/supply-chain-quickref.md`
+- 检查脚本源码：`scripts/check-supply-chain.sh`
 - 测试脚本：`test-auto-detection.sh`
 
 ---

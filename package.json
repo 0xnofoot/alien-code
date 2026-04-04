@@ -19,10 +19,10 @@
     "build": "bun run build.ts",
     "build:dev": "bun run build.ts --dev",
     "typecheck": "tsc --noEmit",
-    "postinstall": "bash check-supply-chain.sh",
+    "postinstall": "bash scripts/check-supply-chain.sh",
     "preinstall": "echo '\n🔒 准备安装依赖，安装后将自动运行供应链安全检查...\n'",
-    "check-security": "bash check-supply-chain.sh",
-    "prepare": "bash check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
+    "check-security": "bash scripts/check-supply-chain.sh",
+    "prepare": "bash scripts/check-supply-chain.sh 2>/dev/null || echo '⚠️  首次克隆仓库，请运行: npm run check-security'"
   },
   "dependencies": {
     "@alcalzone/ansi-tokenize": "^0.3.0",

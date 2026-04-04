@@ -12,7 +12,7 @@
 
 ```bash
 # 运行自动检查脚本
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 
 # 或手动快速验证
 ls node_modules/ | grep -E "(audio-capture|color-diff|image-processor|modifiers|url-handler)-napi"
@@ -55,9 +55,9 @@ npm run check-security        # 手动验证
 | Package Override | `package.json` overrides | ✅ |
 | **postinstall 钩子** ⭐ | `package.json` scripts | ✅ |
 | **Git Hooks** ⭐ | `.husky/post-merge` | ✅ |
-| 自动检查脚本 | `check-supply-chain.sh` | ✅ |
+| 自动检查脚本 | `scripts/check-supply-chain.sh` | ✅ |
 | 测试脚本 | `test-auto-detection.sh` | ✅ |
-| 文档 | `SECURITY-INSTALL.md` | ✅ |
+| 文档 | `docs/SECURITY-INSTALL.md` | ✅ |
 
 ---
 
@@ -75,7 +75,7 @@ npm cache clean --force
 
 # 3. 重新安装
 bun install
-./check-supply-chain.sh
+./scripts/check-supply-chain.sh
 
 # 4. 轮换密钥
 # - GitHub tokens
@@ -87,7 +87,7 @@ bun install
 
 ## 📞 获取帮助
 
-- 📄 详细文档：`SECURITY-INSTALL.md`
+- 📄 详细文档：`docs/SECURITY-INSTALL.md`
 - 🐛 报告问题：GitHub Issues
 - 📰 威胁来源：[The Hacker News](https://thehackernews.com/2026/04/claude-code-tleaked-via-npm-packaging.html)
 

@@ -9,10 +9,10 @@ if echo "$CHANGED_FILES" | grep -qE "package.json|package-lock.json|bun.lock"; t
   echo "🔍 检测到依赖文件变更，正在运行供应链安全检查..."
   echo ""
 
-  if [ -x "./check-supply-chain.sh" ]; then
-    ./check-supply-chain.sh
+  if [ -x "./scripts/check-supply-chain.sh" ]; then
+    ./scripts/check-supply-chain.sh
   else
-    echo "⚠️  check-supply-chain.sh 不可执行或不存在"
+    echo "⚠️  scripts/check-supply-chain.sh 不可执行或不存在"
     exit 1
   fi
 fi
