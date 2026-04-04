@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
 import { formatCost } from 'src/cost-tracker.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
@@ -277,16 +276,6 @@ function ExtraUsageSection(t0) {
     return false;
   }
   if (!extraUsage.is_enabled) {
-    if (extraUsageCommand.isEnabled()) {
-      let t1;
-      if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-        t1 = <Box flexDirection="column"><Text bold={true}>{EXTRA_USAGE_SECTION_TITLE}</Text><Text dimColor={true}>Extra usage not enabled · /extra-usage to enable</Text></Box>;
-        $[0] = t1;
-      } else {
-        t1 = $[0];
-      }
-      return t1;
-    }
     return null;
   }
   if (extraUsage.monthly_limit === null) {

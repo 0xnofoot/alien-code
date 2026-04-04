@@ -4,7 +4,7 @@ import { type OptionWithDescription, Select } from '../../components/CustomSelec
 import { Dialog } from '../../components/design-system/Dialog.js';
 import { Box, Text } from '../../ink.js';
 import { useAppState } from '../../state/AppState.js';
-import { isClaudeAISubscriber } from '../../utils/auth.js';
+// isClaudeAISubscriber removed — always false in this fork
 import { openBrowser } from '../../utils/browser.js';
 import { CLAUDE_IN_CHROME_MCP_SERVER_NAME, openInChrome } from '../../utils/claudeInChrome/common.js';
 import { isChromeExtensionInstalled } from '../../utils/claudeInChrome/setup.js';
@@ -278,7 +278,7 @@ function _temp(s) {
 export const call = async function (onDone: (result?: string) => void): Promise<React.ReactNode> {
   const isExtensionInstalled = await isChromeExtensionInstalled();
   const config = getGlobalConfig();
-  const isSubscriber = isClaudeAISubscriber();
+  const isSubscriber = false;
   const isWSL = env.isWslEnvironment();
   return <ClaudeInChromeMenu onDone={onDone} isExtensionInstalled={isExtensionInstalled} configEnabled={config.claudeInChromeDefaultEnabled} isClaudeAISubscriber={isSubscriber} isWSL={isWSL} />;
 };

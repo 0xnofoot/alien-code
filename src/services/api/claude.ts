@@ -55,7 +55,8 @@ import {
   splitSysPromptPrefix,
   toolToAPISchema,
 } from '../../utils/api.js'
-import { getOauthAccountInfo } from '../../utils/auth.js'
+// getOauthAccountInfo removed — always returns undefined in this fork
+const getOauthAccountInfo = (): undefined => undefined
 import {
   getBedrockExtraBodyParamsBetas,
   getMergedBetas,
@@ -154,7 +155,8 @@ import {
   modelSupportsAdvisor,
 } from 'src/utils/advisor.js'
 import { getAgentContext } from 'src/utils/agentContext.js'
-import { isClaudeAISubscriber } from 'src/utils/auth.js'
+// isClaudeAISubscriber removed — always returns false in this fork
+const isClaudeAISubscriber = (): boolean => false
 import {
   getToolSearchBetaHeader,
   modelSupportsStructuredOutputs,

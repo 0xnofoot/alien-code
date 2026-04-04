@@ -80,17 +80,7 @@ export async function migrateChangelogFromConfig(): Promise<void> {
  * This runs in the background and doesn't block the UI
  */
 export async function fetchAndStoreChangelog(): Promise<void> {
-  // Skip in noninteractive mode
-  if (getIsNonInteractiveSession()) {
-    return
-  }
-
-  // Skip network requests if nonessential traffic is disabled
-  if (isEssentialTrafficOnly()) {
-    return
-  }
-
-  const response = await axios.get(RAW_CHANGELOG_URL)
+  return
   if (response.status === 200) {
     const changelogContent = response.data
 
@@ -205,6 +195,14 @@ export function parseChangelog(content: string): Record<string, string[]> {
  * @returns Array of release notes to display
  */
 export function getRecentReleaseNotes(
+  _currentVersion: string,
+  _previousVersion: string | null | undefined,
+  _changelogContent?: string,
+): string[] {
+  return []
+}
+
+function _getRecentReleaseNotes_UNUSED(
   currentVersion: string,
   previousVersion: string | null | undefined,
   changelogContent: string = getStoredChangelogFromMemory(),

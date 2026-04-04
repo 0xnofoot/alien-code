@@ -10,13 +10,12 @@ import {
   CLAUDE_AI_OAUTH_SCOPES,
   getOauthConfig,
 } from '../../constants/oauth.js'
-import {
-  checkAndRefreshOAuthTokenIfNeeded,
-  getClaudeAIOAuthTokens,
-  hasProfileScope,
-  isClaudeAISubscriber,
-  saveApiKey,
-} from '../../utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
+const getClaudeAIOAuthTokens = (): null => null
+const hasProfileScope = (): boolean => false
+const isClaudeAISubscriber = (): boolean => false
+const saveApiKey = async (_key: string): Promise<void> => {}
 import type { AccountInfo } from '../../utils/config.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'

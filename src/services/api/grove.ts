@@ -4,7 +4,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from 'src/services/analytics/index.js'
-import { getOauthAccountInfo, isConsumerSubscriber } from 'src/utils/auth.js'
+// getOauthAccountInfo/isConsumerSubscriber removed — always returns undefined/false
 import { logForDebugging } from 'src/utils/debug.js'
 import { gracefulShutdown } from 'src/utils/gracefulShutdown.js'
 import { isEssentialTrafficOnly } from 'src/utils/privacyLevel.js'
@@ -155,11 +155,11 @@ export async function updateGroveSettings(
  * false and the Grove dialog won't show until the next session.
  */
 export async function isQualifiedForGrove(): Promise<boolean> {
-  if (!isConsumerSubscriber()) {
+  if (true) { // isConsumerSubscriber() always false
     return false
   }
 
-  const accountId = getOauthAccountInfo()?.accountUuid
+  const accountId = undefined // getOauthAccountInfo() always returns undefined
   if (!accountId) {
     return false
   }

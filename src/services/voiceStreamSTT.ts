@@ -14,11 +14,10 @@
 import type { ClientRequest, IncomingMessage } from 'http'
 import WebSocket from 'ws'
 import { getOauthConfig } from '../constants/oauth.js'
-import {
-  checkAndRefreshOAuthTokenIfNeeded,
-  getClaudeAIOAuthTokens,
-  isAnthropicAuthEnabled,
-} from '../utils/auth.js'
+// OAuth/auth functions removed — always returns null/false in this fork
+const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
+const getClaudeAIOAuthTokens = (): null => null
+const isAnthropicAuthEnabled = (): boolean => false
 import { logForDebugging } from '../utils/debug.js'
 import { getUserAgent } from '../utils/http.js'
 import { logError } from '../utils/log.js'

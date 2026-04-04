@@ -1,5 +1,5 @@
 import type { Command } from '../../commands.js'
-import { getSubscriptionType } from '../../utils/auth.js'
+// getSubscriptionType removed — always returns null in this fork
 import { isEnvTruthy } from '../../utils/envUtils.js'
 
 const upgrade = {
@@ -8,7 +8,6 @@ const upgrade = {
   description: 'Upgrade to Max for higher rate limits and more Opus',
   availability: ['claude-ai'],
   isEnabled: () =>
-    // getSubscriptionType() always returns null, so the check is always true
     !isEnvTruthy(process.env.DISABLE_UPGRADE_COMMAND),
   load: () => import('./upgrade.js'),
 } satisfies Command

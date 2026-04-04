@@ -48,7 +48,12 @@ import { canUserConfigureAdvisor, getInitialAdvisorSetting, isAdvisorEnabled, is
 import { isAgentSwarmsEnabled } from './utils/agentSwarmsEnabled.js';
 import { count, uniq } from './utils/array.js';
 import { installAsciicastRecorder } from './utils/asciicast.js';
-import { getSubscriptionType, isClaudeAISubscriber, prefetchAwsCredentialsAndBedRockInfoIfSafe, prefetchGcpCredentialsIfSafe, validateForceLoginOrg } from './utils/auth.js';
+// Removed auth functions — always return fixed values in this fork
+const prefetchAwsCredentialsAndBedRockInfoIfSafe = (): void => {}
+const prefetchGcpCredentialsIfSafe = (): void => {}
+const validateForceLoginOrg = async (): Promise<{ valid: true }> => ({ valid: true })
+const isClaudeAISubscriber = (): boolean => false
+const getSubscriptionType = (): null => null
 import { checkHasTrustDialogAccepted, getGlobalConfig, getRemoteControlAtStartup, isAutoUpdaterDisabled, saveGlobalConfig } from './utils/config.js';
 import { seedEarlyInput, stopCapturingEarlyInput } from './utils/earlyInput.js';
 import { getInitialEffortSetting, parseEffortValue } from './utils/effort.js';
@@ -3230,18 +3235,17 @@ async function run(): Promise<CommanderCommand> {
 
       // Auth — call prepareApiRequest() once for orgUUID, but use a
       // getAccessToken closure for the token so reconnects get fresh tokens.
-      const {
-        checkAndRefreshOAuthTokenIfNeeded,
-        getClaudeAIOAuthTokens
-      } = await import('./utils/auth.js');
-      await checkAndRefreshOAuthTokenIfNeeded();
+      // OAuth functions removed — always returns null/false in this fork
+      const checkAndRefreshOAuthTokenIfNeeded_local = async (): Promise<boolean> => false
+      const getClaudeAIOAuthTokens_local = (): null => null
+      await checkAndRefreshOAuthTokenIfNeeded_local();
       let apiCreds;
       try {
         apiCreds = await prepareApiRequest();
       } catch (e) {
         return await exitWithError(root, `Error: ${e instanceof Error ? e.message : 'Failed to authenticate'}`, () => gracefulShutdown(1));
       }
-      const getAccessToken = (): string => getClaudeAIOAuthTokens()?.accessToken ?? apiCreds.accessToken;
+      const getAccessToken = (): string => getClaudeAIOAuthTokens_local()?.accessToken ?? apiCreds.accessToken;
 
       // Brief mode activation: setKairosActive(true) satisfies BOTH opt-in
       // and entitlement for isBriefEnabled() (BriefTool.ts:124-132).
@@ -3373,10 +3377,8 @@ async function run(): Promise<CommanderCommand> {
         }
 
         // Create remote session config for the REPL
-        const {
-          getClaudeAIOAuthTokens: getTokensForRemote
-        } = await import('./utils/auth.js');
-        const getAccessTokenForRemote = (): string => getTokensForRemote()?.accessToken ?? apiCreds.accessToken;
+        // getClaudeAIOAuthTokens removed — always returns null in this fork
+        const getAccessTokenForRemote = (): string => null?.accessToken ?? apiCreds.accessToken;
         const remoteSessionConfig = createRemoteSessionConfig(createdSession.id, getAccessTokenForRemote, apiCreds.orgUUID, hasInitialPrompt);
 
         // Add remote session info as initial system message

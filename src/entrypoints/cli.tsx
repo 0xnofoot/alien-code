@@ -133,10 +133,8 @@ async function main(): Promise<void> {
     // GrowthBook has no user context and would return a stale/default false.
     // getBridgeDisabledReason awaits GB init, so the returned value is fresh
     // (not the stale disk cache), but init still needs auth headers to work.
-    const {
-      getClaudeAIOAuthTokens
-    } = await import('../utils/auth.js');
-    if (!getClaudeAIOAuthTokens()?.accessToken) {
+    // getClaudeAIOAuthTokens removed — always null in this fork, bridge auth always fails
+    {
       exitWithError(BRIDGE_LOGIN_ERROR);
     }
     const disabledReason = await getBridgeDisabledReason();

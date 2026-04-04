@@ -1,10 +1,9 @@
 import axios from 'axios'
 import { getOauthConfig } from '../../constants/oauth.js'
-import {
-  getClaudeAIOAuthTokens,
-  hasProfileScope,
-  isClaudeAISubscriber,
-} from '../../utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const hasProfileScope = (): boolean => false
+const isClaudeAISubscriber = (): boolean => false
 import { getAuthHeaders } from '../../utils/http.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { isOAuthTokenExpired } from '../oauth/client.js'

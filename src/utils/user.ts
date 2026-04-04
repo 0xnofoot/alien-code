@@ -1,10 +1,9 @@
 import { execa } from 'execa'
 import memoize from 'lodash-es/memoize.js'
 import { getSessionId } from '../bootstrap/state.js'
-import {
-  getOauthAccountInfo,
-  getRateLimitTier,
-} from './auth.js'
+// getOauthAccountInfo, getRateLimitTier removed — noops in this fork
+const getOauthAccountInfo = (): undefined => undefined
+const getRateLimitTier = (): null => null
 import { getGlobalConfig, getOrCreateUserID } from './config.js'
 import { getCwd } from './cwd.js'
 import { type env, getHostPlatformForAnalytics } from './env.js'

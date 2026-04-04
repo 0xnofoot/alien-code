@@ -8,13 +8,10 @@ import { logEvent } from '../../services/analytics/index.js';
 import { useClaudeAiLimits } from '../../services/claudeAiLimitsHook.js';
 import type { ToolUseContext } from '../../Tool.js';
 import type { LocalJSXCommandOnDone } from '../../types/command.js';
-import { getOauthAccountInfo, getRateLimitTier, getSubscriptionType } from '../../utils/auth.js';
-import { hasClaudeAiBillingAccess } from '../../utils/billing.js';
-import { call as extraUsageCall } from '../extra-usage/extra-usage.js';
-import { extraUsage } from '../extra-usage/index.js';
+// getRateLimitTier, getSubscriptionType removed — always null in this fork
 import upgrade from '../upgrade/index.js';
 import { call as upgradeCall } from '../upgrade/upgrade.js';
-type RateLimitOptionsMenuOptionType = 'upgrade' | 'extra-usage' | 'cancel';
+type RateLimitOptionsMenuOptionType = 'upgrade' | 'cancel';
 type RateLimitOptionsMenuProps = {
   onDone: (result?: string, options?: {
     display?: CommandResultDisplay | undefined;
@@ -31,7 +28,7 @@ function RateLimitOptionsMenu(t0) {
   const claudeAiLimits = useClaudeAiLimits();
   let t1;
   if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
-    t1 = getSubscriptionType();
+    t1 = null;
     $[0] = t1;
   } else {
     t1 = $[0];
@@ -39,13 +36,12 @@ function RateLimitOptionsMenu(t0) {
   const subscriptionType = t1;
   let t2;
   if ($[1] === Symbol.for("react.memo_cache_sentinel")) {
-    t2 = getRateLimitTier();
+    t2 = null;
     $[1] = t2;
   } else {
     t2 = $[1];
   }
   const rateLimitTier = t2;
-  const hasExtraUsageEnabled = getOauthAccountInfo()?.hasExtraUsageEnabled === true;
   const isMax = subscriptionType === "max";
   const isMax20x = isMax && rateLimitTier === "default_claude_max_20x";
   const isTeamOrEnterprise = subscriptionType === "team" || subscriptionType === "enterprise";
@@ -55,32 +51,6 @@ function RateLimitOptionsMenu(t0) {
     let actionOptions;
     if ($[2] !== claudeAiLimits.overageDisabledReason || $[3] !== claudeAiLimits.overageStatus) {
       actionOptions = [];
-      if (extraUsage.isEnabled()) {
-        const hasBillingAccess = hasClaudeAiBillingAccess();
-        const needsToRequestFromAdmin = isTeamOrEnterprise && !hasBillingAccess;
-        const isOrgSpendCapDepleted = claudeAiLimits.overageDisabledReason === "out_of_credits" || claudeAiLimits.overageDisabledReason === "org_level_disabled_until" || claudeAiLimits.overageDisabledReason === "org_service_zero_credit_limit";
-        if (needsToRequestFromAdmin && isOrgSpendCapDepleted) {} else {
-          const isOverageState = claudeAiLimits.overageStatus === "rejected" || claudeAiLimits.overageStatus === "allowed_warning";
-          let label;
-          if (needsToRequestFromAdmin) {
-            label = isOverageState ? "Request more" : "Request extra usage";
-          } else {
-            label = hasExtraUsageEnabled ? "Add funds to continue with extra usage" : "Switch to extra usage";
-          }
-          let t4;
-          if ($[5] !== label) {
-            t4 = {
-              label,
-              value: "extra-usage"
-            };
-            $[5] = label;
-            $[6] = t4;
-          } else {
-            t4 = $[6];
-          }
-          actionOptions.push(t4);
-        }
-      }
       if (!isMax20x && !isTeamOrEnterprise && upgrade.isEnabled()) {
         let t4;
         if ($[7] === Symbol.for("react.memo_cache_sentinel")) {
@@ -157,16 +127,8 @@ function RateLimitOptionsMenu(t0) {
           }
         });
       } else {
-        if (value === "extra-usage") {
-          extraUsageCall(onDone, context).then(jsx_0 => {
-            if (jsx_0) {
-              setSubCommandJSX(jsx_0);
-            }
-          });
-        } else {
-          if (value === "cancel") {
-            handleCancel();
-          }
+        if (value === "cancel") {
+          handleCancel();
         }
       }
     };

@@ -39,12 +39,10 @@ import {
   setMeterProvider,
   setTracerProvider,
 } from 'src/bootstrap/state.js'
-import {
-  getOtelHeadersFromHelper,
-  getSubscriptionType,
-  is1PApiCustomer,
-  isClaudeAISubscriber,
-} from 'src/utils/auth.js'
+// Removed auth functions — always returns fixed values in this fork
+const getOtelHeadersFromHelper = (): Record<string, string> => ({})
+const is1PApiCustomer = (): boolean => true
+const isClaudeAISubscriber = (): boolean => false
 import { getPlatform, getWslVersion } from 'src/utils/platform.js'
 
 import { getCACertificates } from '../caCerts.js'

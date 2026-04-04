@@ -2,9 +2,10 @@ import axios from 'axios'
 import isEqual from 'lodash-es/isEqual.js'
 import {
   getAnthropicApiKey,
-  getClaudeAIOAuthTokens,
-  hasProfileScope,
 } from 'src/utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const hasProfileScope = (): boolean => false
 import { z } from 'zod'
 import { getOauthConfig, OAUTH_BETA_HEADER } from '../../constants/oauth.js'
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'

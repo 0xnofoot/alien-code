@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { getOauthConfig } from 'src/constants/oauth.js'
 import { getOrganizationUUID } from 'src/services/oauth/client.js'
-import { getClaudeAIOAuthTokens } from '../auth.js'
+// getClaudeAIOAuthTokens removed — always null in this fork
+const getClaudeAIOAuthTokens = (): null => null
 import { toError } from '../errors.js'
 import { logError } from '../log.js'
 import { getOAuthHeaders } from './api.js'

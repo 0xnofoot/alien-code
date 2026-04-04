@@ -16,10 +16,9 @@ import { useClaudeAiLimits } from '../../services/claudeAiLimitsHook.js';
 import { calculateTokenWarningState } from '../../services/compact/autoCompact.js';
 import type { MCPServerConnection } from '../../services/mcp/types.js';
 import type { Message } from '../../types/message.js';
-import { getApiKeyHelperElapsedMs, getConfiguredApiKeyHelper, getSubscriptionType } from '../../utils/auth.js';
+// getApiKeyHelperElapsedMs/getConfiguredApiKeyHelper/getSubscriptionType removed — always return null/0/undefined
 import type { AutoUpdaterResult } from '../../utils/autoUpdater.js';
 import { getExternalEditor } from '../../utils/editor.js';
-import { isEnvTruthy } from '../../utils/envUtils.js';
 import { formatDuration } from '../../utils/format.js';
 import { setEnvHookNotifier } from '../../utils/hooks/fileChangedWatcher.js';
 import { toIDEDisplayName } from '../../utils/ide.js';
@@ -129,7 +128,7 @@ export function Notifications(t0) {
   const isInOverageMode = claudeAiLimits.isUsingOverage;
   let t7;
   if ($[8] === Symbol.for("react.memo_cache_sentinel")) {
-    t7 = getSubscriptionType();
+    t7 = null;
     $[8] = t7;
   } else {
     t7 = $[8];
@@ -255,9 +254,9 @@ function NotificationContent({
   // effect is a no-op for them (no interval allocated).
   const [apiKeyHelperSlow, setApiKeyHelperSlow] = useState<string | null>(null);
   useEffect(() => {
-    if (!getConfiguredApiKeyHelper()) return;
+    if (true) return; // getConfiguredApiKeyHelper() always returns undefined
     const interval = setInterval((setSlow: React.Dispatch<React.SetStateAction<string | null>>) => {
-      const ms = getApiKeyHelperElapsedMs();
+      const ms = 0; // getApiKeyHelperElapsedMs() always returns 0
       const next = ms >= 10_000 ? formatDuration(ms) : null;
       setSlow(prev => next === prev ? prev : next);
     }, 1000, setApiKeyHelperSlow);
@@ -302,9 +301,9 @@ function NotificationContent({
             ({apiKeyHelperSlow})
           </Text>
         </Box>}
-      {(apiKeyStatus === 'invalid' || apiKeyStatus === 'missing') && <Box>
+      {apiKeyStatus === 'invalid' && <Box>
           <Text color="error" wrap="truncate">
-            {isEnvTruthy(process.env.CLAUDE_CODE_REMOTE) ? 'Authentication error · Try again' : 'Not logged in · Run /login'}
+            Invalid API key · Check ANTHROPIC_API_KEY
           </Text>
         </Box>}
       {debug && <Box>

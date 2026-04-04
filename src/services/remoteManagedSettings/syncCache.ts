@@ -10,8 +10,9 @@
 import { CLAUDE_AI_INFERENCE_SCOPE } from '../../constants/oauth.js'
 import {
   getAnthropicApiKeyWithSource,
-  getClaudeAIOAuthTokens,
 } from '../../utils/auth.js'
+// OAuth functions removed — always returns null in this fork
+const getClaudeAIOAuthTokens = (): null => null
 import {
   getAPIProvider,
   isFirstPartyAnthropicBaseUrl,

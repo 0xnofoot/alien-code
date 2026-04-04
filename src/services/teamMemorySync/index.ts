@@ -40,10 +40,9 @@ import {
   validateTeamMemKey,
 } from '../../memdir/teamMemPaths.js'
 import { count } from '../../utils/array.js'
-import {
-  checkAndRefreshOAuthTokenIfNeeded,
-  getClaudeAIOAuthTokens,
-} from '../../utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
+const getClaudeAIOAuthTokens = (): null => null
 import { logForDebugging } from '../../utils/debug.js'
 import { classifyAxiosError } from '../../utils/errors.js'
 import { getGithubRepo } from '../../utils/git.js'

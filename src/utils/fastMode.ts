@@ -12,10 +12,11 @@ import {
 } from '../services/analytics/index.js'
 import {
   getAnthropicApiKey,
-  getClaudeAIOAuthTokens,
-  handleOAuth401Error,
-  hasProfileScope,
 } from './auth.js'
+// getClaudeAIOAuthTokens, handleOAuth401Error, hasProfileScope removed — noops in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const handleOAuth401Error = async (_token: string): Promise<boolean> => false
+const hasProfileScope = (): boolean => false
 import { isInBundledMode } from './bundledMode.js'
 import { getGlobalConfig, saveGlobalConfig } from './config.js'
 import { logForDebugging } from './debug.js'

@@ -1,5 +1,6 @@
 import memoize from 'lodash-es/memoize.js'
-import { refreshAndGetAwsCredentials } from '../auth.js'
+// refreshAndGetAwsCredentials removed — always returns null in this fork
+const refreshAndGetAwsCredentials = async (): Promise<null> => null
 import { getAWSRegion, isEnvTruthy } from '../envUtils.js'
 import { logError } from '../log.js'
 import { getAWSClientProxyConfig } from '../proxy.js'

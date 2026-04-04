@@ -25,11 +25,10 @@ import {
   waitForPolicyLimitsToLoad,
 } from '../services/policyLimits/index.js'
 import type { Message } from '../types/message.js'
-import {
-  checkAndRefreshOAuthTokenIfNeeded,
-  getClaudeAIOAuthTokens,
-  handleOAuth401Error,
-} from '../utils/auth.js'
+// OAuth functions removed — bridge mode is always disabled in this fork
+const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
+const getClaudeAIOAuthTokens = (): null => null
+const handleOAuth401Error = async (_token: string): Promise<boolean> => false
 import { getGlobalConfig, saveGlobalConfig } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js'
 import { stripDisplayTagsAllowEmpty } from '../utils/displayTags.js'

@@ -1,10 +1,9 @@
 import axios from 'axios'
 import { getOauthConfig } from '../../constants/oauth.js'
-import {
-  getOauthAccountInfo,
-  getSubscriptionType,
-  isClaudeAISubscriber,
-} from '../../utils/auth.js'
+// getOauthAccountInfo/getSubscriptionType/isClaudeAISubscriber removed — always returns undefined/null/false
+const getOauthAccountInfo = (): undefined => undefined
+const getSubscriptionType = (): null => null
+const isClaudeAISubscriber = (): boolean => false
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logError } from '../../utils/log.js'

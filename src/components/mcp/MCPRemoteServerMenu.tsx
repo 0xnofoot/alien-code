@@ -14,7 +14,7 @@ import { clearServerCache } from '../../services/mcp/client.js';
 import { useMcpReconnect, useMcpToggleEnabled } from '../../services/mcp/MCPConnectionManager.js';
 import { describeMcpConfigFilePath, excludeCommandsByServer, excludeResourcesByServer, excludeToolsByServer, filterMcpPromptsByServer } from '../../services/mcp/utils.js';
 import { useAppState, useSetAppState } from '../../state/AppState.js';
-import { getOauthAccountInfo } from '../../utils/auth.js';
+
 import { openBrowser } from '../../utils/browser.js';
 import { errorMessage } from '../../utils/errors.js';
 import { logMCPDebug } from '../../utils/log.js';
@@ -207,8 +207,7 @@ export function MCPRemoteServerMenu({
   const toggleMcpServer = useMcpToggleEnabled();
   const handleClaudeAIAuth = React.useCallback(async () => {
     const claudeAiBaseUrl = getOauthConfig().CLAUDE_AI_ORIGIN;
-    const accountInfo = getOauthAccountInfo();
-    const orgUuid = accountInfo?.organizationUuid;
+    const orgUuid = undefined; // getOauthAccountInfo() always returns undefined
     let authUrl: string;
     if (orgUuid && server.config.type === 'claudeai-proxy' && server.config.id) {
       // Use the direct auth URL with org and server IDs

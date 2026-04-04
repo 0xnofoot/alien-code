@@ -2,14 +2,21 @@ import Anthropic, { type ClientOptions } from '@anthropic-ai/sdk'
 import { randomUUID } from 'crypto'
 import type { GoogleAuth } from 'google-auth-library'
 import {
-  checkAndRefreshOAuthTokenIfNeeded,
   getAnthropicApiKey,
-  getApiKeyFromApiKeyHelper,
-  getClaudeAIOAuthTokens,
-  isClaudeAISubscriber,
-  refreshAndGetAwsCredentials,
-  refreshGcpCredentialsIfNeeded,
 } from 'src/utils/auth.js'
+// OAuth/AWS/GCP functions removed — always returns null/false in this fork
+const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
+const getApiKeyFromApiKeyHelper = async (_nonInteractive: boolean): Promise<string | null> => null
+const getClaudeAIOAuthTokens = (): null => null
+const isClaudeAISubscriber = (): boolean => false
+const refreshAndGetAwsCredentials = Object.assign(
+  async (): Promise<null> => null,
+  { cache: { clear: () => {} } },
+)
+const refreshGcpCredentialsIfNeeded = Object.assign(
+  async (): Promise<boolean> => false,
+  { cache: { clear: () => {} } },
+)
 import { isOpenAIProvider } from '../../utils/llmProvider.js'
 import { createOpenAIProxyFetch } from './openaiProxy.js'
 import { getUserAgent } from 'src/utils/http.js'

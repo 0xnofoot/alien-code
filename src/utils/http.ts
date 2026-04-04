@@ -6,10 +6,11 @@ import axios from 'axios'
 import { OAUTH_BETA_HEADER } from '../constants/oauth.js'
 import {
   getAnthropicApiKey,
-  getClaudeAIOAuthTokens,
-  handleOAuth401Error,
-  isClaudeAISubscriber,
 } from './auth.js'
+// getClaudeAIOAuthTokens, handleOAuth401Error, isClaudeAISubscriber removed — noops in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const handleOAuth401Error = async (_token: string): Promise<boolean> => false
+const isClaudeAISubscriber = (): boolean => false
 import { getClaudeCodeUserAgent } from './userAgent.js'
 import { getWorkload } from './workloadContext.js'
 

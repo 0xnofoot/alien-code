@@ -2,14 +2,15 @@
 
 import type { OAuthTokens } from '../../services/oauth/types.js'
 import {
-  clearOAuthTokenCache,
   getAnthropicApiKeyWithSource,
-  getAuthTokenSource,
-  getOauthAccountInfo,
-  getSubscriptionType,
-  isUsing3PServices,
-  saveOAuthTokensIfNeeded,
 } from '../../utils/auth.js'
+// OAuth functions removed — always returns fixed values in this fork
+const clearOAuthTokenCache = (): void => {}
+const getAuthTokenSource = (): { source: string; hasToken: boolean } => ({ source: 'none', hasToken: false })
+const getOauthAccountInfo = (): undefined => undefined
+const getSubscriptionType = (): null => null
+const isUsing3PServices = (): boolean => false
+const saveOAuthTokensIfNeeded = (_tokens: unknown): { success: boolean } => ({ success: true })
 import { logForDebugging } from '../../utils/debug.js'
 import { isRunningOnHomespace } from '../../utils/envUtils.js'
 import { getAPIProvider } from '../../utils/model/providers.js'

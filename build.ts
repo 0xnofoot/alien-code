@@ -130,9 +130,6 @@ const EXPLICIT_STUBS: Record<string, string> = {
   '@ant/computer-use-mcp/sentinelApps': `${ROOT}/stubs/@ant/computer-use-mcp/sentinelApps.ts`,
   '@ant/computer-use-input': `${ROOT}/stubs/@ant/computer-use-input/index.ts`,
   '@ant/computer-use-swift': `${ROOT}/stubs/@ant/computer-use-swift/index.ts`,
-  // '@anthropic-ai/claude-agent-sdk': now a public package, use real install
-  // '@anthropic-ai/mcpb': now a public package, use real install
-  // '@anthropic-ai/sandbox-runtime': now a public package, use real install
   // Internal native addon — use TS port instead
   'color-diff-napi': `${ROOT}/stubs/color-diff-napi/index.ts`,
   'audio-capture-napi': `${ROOT}/stubs/audio-capture-napi/index.ts`,

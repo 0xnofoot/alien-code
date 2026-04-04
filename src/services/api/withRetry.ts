@@ -16,10 +16,11 @@ import {
   clearApiKeyHelperCache,
   clearAwsCredentialsCache,
   clearGcpCredentialsCache,
-  getClaudeAIOAuthTokens,
-  handleOAuth401Error,
-  isClaudeAISubscriber,
 } from '../../utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const handleOAuth401Error = async (_token: string): Promise<boolean> => false
+const isClaudeAISubscriber = (): boolean => false
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { errorMessage } from '../../utils/errors.js'
 import {

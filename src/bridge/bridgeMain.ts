@@ -2028,8 +2028,9 @@ export async function bridgeMain(args: string[]): Promise<void> {
   }
 
   // Resolve auth
-  const { clearOAuthTokenCache, checkAndRefreshOAuthTokenIfNeeded } =
-    await import('../utils/auth.js')
+  // clearOAuthTokenCache, checkAndRefreshOAuthTokenIfNeeded removed — noops in this fork
+  const clearOAuthTokenCache = (): void => {}
+  const checkAndRefreshOAuthTokenIfNeeded = async (): Promise<boolean> => false
   const { getBridgeAccessToken, getBridgeBaseUrl } = await import(
     './bridgeConfig.js'
   )
@@ -2273,7 +2274,8 @@ export async function bridgeMain(args: string[]): Promise<void> {
   const machineName = hostname()
   const bridgeId = randomUUID()
 
-  const { handleOAuth401Error } = await import('../utils/auth.js')
+  // handleOAuth401Error removed — always returns false in this fork
+  const handleOAuth401Error = async (_token: string): Promise<boolean> => false
   const api = createBridgeApiClient({
     baseUrl,
     getAccessToken: getBridgeAccessToken,

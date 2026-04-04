@@ -1,9 +1,9 @@
 import {
   getAnthropicApiKey,
-  getAuthTokenSource,
-  getSubscriptionType,
-  isClaudeAISubscriber,
 } from './auth.js'
+// getAuthTokenSource, getSubscriptionType, isClaudeAISubscriber removed — noops in this fork
+const getAuthTokenSource = (): { hasToken: boolean } => ({ hasToken: false })
+const isClaudeAISubscriber = (): boolean => false
 import { getGlobalConfig } from './config.js'
 import { isEnvTruthy } from './envUtils.js'
 

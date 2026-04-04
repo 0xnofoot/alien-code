@@ -21,7 +21,7 @@ import {
 } from '../../bootstrap/state.js'
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isOfficialMcpUrl } from '../mcp/officialRegistry.js'
-import { isClaudeAISubscriber, getSubscriptionType } from '../../utils/auth.js'
+// isClaudeAISubscriber/getSubscriptionType removed — always false/null in this fork
 import { getRepoRemoteHash } from '../../utils/git.js'
 import {
   getWslVersion,
@@ -616,7 +616,7 @@ const buildEnvContext = memoize(async (): Promise<EnvContext> => {
     }),
     isGithubAction: isEnvTruthy(process.env.GITHUB_ACTIONS),
     isClaudeCodeAction: isEnvTruthy(process.env.CLAUDE_CODE_ACTION),
-    isClaudeAiAuth: isClaudeAISubscriber(),
+    isClaudeAiAuth: false,
     version: MACRO.VERSION,
     versionBase: getVersionBase(),
     buildTime: MACRO.BUILD_TIME,

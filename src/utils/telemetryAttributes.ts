@@ -1,6 +1,7 @@
 import type { Attributes } from '@opentelemetry/api'
 import { getSessionId } from 'src/bootstrap/state.js'
-import { getOauthAccountInfo } from './auth.js'
+// getOauthAccountInfo removed — always undefined in this fork
+const getOauthAccountInfo = (): undefined => undefined
 import { getOrCreateUserID } from './config.js'
 import { envDynamic } from './envDynamic.js'
 import { isEnvTruthy } from './envUtils.js'

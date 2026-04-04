@@ -3,10 +3,7 @@
  * Single source of truth for all rate limit-related messages
  */
 
-import {
-  getOauthAccountInfo,
-  isOverageProvisioningAllowed,
-} from '../utils/auth.js'
+// getOauthAccountInfo/isOverageProvisioningAllowed removed — always returns undefined/false
 import { hasClaudeAiBillingAccess } from '../utils/billing.js'
 import { formatResetTime } from '../utils/format.js'
 import type { ClaudeAILimits } from './claudeAiLimits.js'
@@ -79,8 +76,7 @@ export function getRateLimitMessage(
     // Don't warn non-billing Team/Enterprise users about approaching plan limits
     // if overages are enabled - they'll seamlessly roll into overage
     // getSubscriptionType() now always returns null (no subscription data)
-    const hasExtraUsageEnabled =
-      getOauthAccountInfo()?.hasExtraUsageEnabled === true
+    const hasExtraUsageEnabled = false // getOauthAccountInfo() always returns undefined
 
     // This condition is now always false (no team/enterprise)
     if (false && hasExtraUsageEnabled && !hasClaudeAiBillingAccess()) {

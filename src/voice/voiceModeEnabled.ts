@@ -1,9 +1,8 @@
 import { feature } from 'bun:bundle'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js'
-import {
-  getClaudeAIOAuthTokens,
-  isAnthropicAuthEnabled,
-} from '../utils/auth.js'
+// OAuth functions removed — always returns false/null in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const isAnthropicAuthEnabled = (): boolean => false
 
 /**
  * Kill-switch check for voice mode. Returns true unless the

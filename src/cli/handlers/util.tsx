@@ -16,9 +16,9 @@ import { logEvent } from '../../services/analytics/index.js';
 import { MCPConnectionManager } from '../../services/mcp/MCPConnectionManager.js';
 import { AppStateProvider } from '../../state/AppState.js';
 import { onChangeAppState } from '../../state/onChangeAppState.js';
-import { isAnthropicAuthEnabled } from '../../utils/auth.js';
+// isAnthropicAuthEnabled removed — always returns false in this fork
 export async function setupTokenHandler(root: Root): Promise<void> {
-  const showAuthWarning = !isAnthropicAuthEnabled();
+  const showAuthWarning = !false; // isAnthropicAuthEnabled() always false
   const {
     ConsoleOAuthFlow
   } = await import('../../components/ConsoleOAuthFlow.js');

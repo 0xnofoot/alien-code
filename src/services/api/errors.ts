@@ -16,10 +16,11 @@ import type {
 } from 'src/types/message.js'
 import {
   getAnthropicApiKeyWithSource,
-  getClaudeAIOAuthTokens,
-  getOauthAccountInfo,
-  isClaudeAISubscriber,
 } from 'src/utils/auth.js'
+// OAuth functions removed — always returns null/false in this fork
+const getClaudeAIOAuthTokens = (): null => null
+const getOauthAccountInfo = (): undefined => undefined
+const isClaudeAISubscriber = (): boolean => false
 import {
   createAssistantAPIErrorMessage,
   NO_RESPONSE_REQUESTED,

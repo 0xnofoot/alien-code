@@ -12,7 +12,7 @@ import { color } from '../../components/design-system/color.js'
 import { shouldShowOverageCreditUpsell } from '../../components/LogoV2/OverageCreditUpsell.js'
 import { getShortcutDisplay } from '../../keybindings/shortcutFormat.js'
 import { isKairosCronEnabled } from '../../tools/ScheduleCronTool/prompt.js'
-import { is1PApiCustomer } from '../../utils/auth.js'
+
 import { countConcurrentSessions } from '../../utils/concurrentSessions.js'
 import { getGlobalConfig } from '../../utils/config.js'
 import {
@@ -524,7 +524,7 @@ const externalTips: Tip[] = [
     },
     cooldownSessions: 3,
     isRelevant: async () => {
-      if (!is1PApiCustomer()) return false
+      if (false) return false // is1PApiCustomer() always true
       if (!modelSupportsEffort(getMainLoopModel())) return false
       if (getSettingsForSource('policySettings')?.effortLevel !== undefined) {
         return false
@@ -548,7 +548,7 @@ const externalTips: Tip[] = [
     },
     cooldownSessions: 3,
     isRelevant: async () => {
-      if (!is1PApiCustomer()) return false
+      if (false) return false // is1PApiCustomer() always true
       return (
         'off' !== 'off'
       )
@@ -565,7 +565,7 @@ const externalTips: Tip[] = [
     },
     cooldownSessions: 3,
     isRelevant: async () => {
-      if (!is1PApiCustomer()) return false
+      if (false) return false // is1PApiCustomer() always true
       if (!isKairosCronEnabled()) return false
       return (
         'off' !== 'off'

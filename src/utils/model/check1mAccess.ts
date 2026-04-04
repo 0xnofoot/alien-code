@@ -1,5 +1,6 @@
 import type { OverageDisabledReason } from 'src/services/claudeAiLimits.js'
-import { isClaudeAISubscriber } from '../auth.js'
+// isClaudeAISubscriber removed — always false in this fork
+const isClaudeAISubscriber = (): boolean => false
 import { getGlobalConfig } from '../config.js'
 import { is1mContextDisabled } from '../context.js'
 

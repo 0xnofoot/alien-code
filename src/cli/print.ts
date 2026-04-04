@@ -187,7 +187,7 @@ import {
   type PromptVariant,
 } from 'src/services/PromptSuggestion/promptSuggestion.js'
 import { getLastCacheSafeParams } from 'src/utils/forkedAgent.js'
-import { getAccountInformation } from 'src/utils/auth.js'
+// getAccountInformation removed — always returns undefined in this fork
 import { OAuthService } from 'src/services/oauth/index.js'
 import { installOAuthTokens } from 'src/cli/handlers/auth.js'
 import { getAPIProvider } from 'src/utils/model/providers.js'
@@ -3606,14 +3606,13 @@ function runHeadlessStreaming(
             const { flow } = claudeOAuth
             void flow.then(
               () => {
-                const accountInfo = getAccountInformation()
                 sendControlResponseSuccess(message, {
                   account: {
-                    email: accountInfo?.email,
-                    organization: accountInfo?.organization,
-                    subscriptionType: accountInfo?.subscription,
-                    tokenSource: accountInfo?.tokenSource,
-                    apiKeySource: accountInfo?.apiKeySource,
+                    email: undefined,
+                    organization: undefined,
+                    subscriptionType: undefined,
+                    tokenSource: undefined,
+                    apiKeySource: undefined,
                     apiProvider: getAPIProvider(),
                   },
                 })
@@ -4404,8 +4403,8 @@ async function handleInitializeRequest(
   const outputStyle = settings?.outputStyle || DEFAULT_OUTPUT_STYLE_NAME
   const availableOutputStyles = await getAllOutputStyles(getCwd())
 
-  // Get account information
-  const accountInfo = getAccountInformation()
+  // Get account information — getAccountInformation() removed, always undefined
+  const accountInfo = undefined
   if (request.hooks) {
     const hooks: Partial<Record<HookEvent, HookCallbackMatcher[]>> = {}
     for (const [event, matchers] of Object.entries(request.hooks)) {

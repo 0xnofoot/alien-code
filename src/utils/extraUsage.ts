@@ -1,4 +1,5 @@
-import { isClaudeAISubscriber } from './auth.js'
+// isClaudeAISubscriber removed — always false in this fork
+const isClaudeAISubscriber = (): boolean => false
 import { has1mContext } from './context.js'
 
 export function isBilledAsExtraUsage(

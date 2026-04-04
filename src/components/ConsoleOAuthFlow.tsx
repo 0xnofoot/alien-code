@@ -10,7 +10,7 @@ import { useKeybinding } from '../keybindings/useKeybinding.js';
 import { getSSLErrorHint } from '../services/api/errorUtils.js';
 import { sendNotification } from '../services/notifier.js';
 import { OAuthService } from '../services/oauth/index.js';
-import { getOauthAccountInfo, validateForceLoginOrg } from '../utils/auth.js';
+// getOauthAccountInfo/validateForceLoginOrg removed — OAuth not available in this fork
 import { logError } from '../utils/log.js';
 import { getSettings_DEPRECATED } from '../utils/settings/settings.js';
 import { Select } from './CustomSelect/select.js';
@@ -220,10 +220,7 @@ export function ConsoleOAuthFlow({
         });
       } else {
         await installOAuthTokens(result);
-        const orgResult = await validateForceLoginOrg();
-        if (!orgResult.valid) {
-          throw new Error(orgResult.message);
-        }
+        // validateForceLoginOrg removed — always valid in this fork
         setOAuthStatus({
           state: 'success'
         });
@@ -553,7 +550,7 @@ function OAuthStatusMessage(t0) {
       {
         let t1;
         if ($[39] !== mode || $[40] !== oauthStatus.token) {
-          t1 = mode === "setup-token" && oauthStatus.token ? null : <>{getOauthAccountInfo()?.emailAddress ? <Text dimColor={true}>Logged in as{" "}<Text>{getOauthAccountInfo()?.emailAddress}</Text></Text> : null}<Text color="success">Login successful. Press <Text bold={true}>Enter</Text> to continue…</Text></>;
+          t1 = mode === "setup-token" && oauthStatus.token ? null : <><Text color="success">Login successful. Press <Text bold={true}>Enter</Text> to continue…</Text></>;
           $[39] = mode;
           $[40] = oauthStatus.token;
           $[41] = t1;

@@ -7,7 +7,11 @@ import { getCwd } from './cwd.js';
 import { relative } from 'path';
 import { formatNumber } from './format.js';
 import type { getGlobalConfig } from './config.js';
-import { getAnthropicApiKeyWithSource, getApiKeyFromConfigOrMacOSKeychain, getAuthTokenSource, isClaudeAISubscriber } from './auth.js';
+import { getAnthropicApiKeyWithSource } from './auth.js';
+// getApiKeyFromConfigOrMacOSKeychain, getAuthTokenSource, isClaudeAISubscriber removed — noops in this fork
+const getApiKeyFromConfigOrMacOSKeychain = async (): Promise<string | null> => null
+const getAuthTokenSource = (): { hasToken: boolean } => ({ hasToken: false })
+const isClaudeAISubscriber = (): boolean => false
 import type { AgentDefinitionsResult } from '../tools/AgentTool/loadAgentsDir.js';
 import { getAgentDescriptionsTotalTokens, AGENT_DESCRIPTIONS_THRESHOLD } from './statusNoticeHelpers.js';
 import { isSupportedJetBrainsTerminal, toIDEDisplayName, getTerminalIdeType } from './ide.js';
