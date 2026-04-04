@@ -16,7 +16,8 @@ import { dirname, join, resolve } from 'path'
 const isDev = process.argv.includes('--dev')
 const ROOT = import.meta.dir
 const outDir = join(ROOT, 'package')
-const outFile = join(outDir, 'alien-code.js')
+const outFile = join(outDir, 'alien-code')
+const tempJsFile = join(outDir, 'alien-code-bundle.js')
 
 await mkdir(outDir, { recursive: true })
 
@@ -151,10 +152,12 @@ export const prompt = ""
 
 console.log(`Building Alien Code v${VERSION} (${isDev ? 'dev' : 'production'})...`)
 
+// Phase 1: Bundle to intermediate JS (with all plugins applied)
+// Use target: 'node' to ensure bun:bundle stub is applied (not Bun-native bun:bundle)
 const result = await Bun.build({
   entrypoints: ['./src/entrypoints/cli.tsx'],
   outdir: outDir,
-  naming: 'alien-code.js',
+  naming: 'alien-code-bundle.js',
   target: 'node',
   format: 'esm',
   bundle: true,
@@ -309,38 +312,40 @@ const result = await Bun.build({
 })
 
 if (!result.success) {
-  console.error('\nBuild failed:')
+  console.error('\nBundle phase failed:')
   for (const log of result.logs) {
     console.error(String(log))
   }
   process.exit(1)
 }
 
-// Prepend shebang + header to the output file
-let content = await Bun.file(outFile).text()
-
-// Fix Bun DCE bug: `void import('./devtools.js')` inside a lazy-init block
-// gets mangled to `Promise.resolve().then(() => )` — invalid JS syntax.
-// Replace with a no-op that is syntactically valid.
+// Fix Bun DCE bug: `void import('./devtools.js')` gets mangled to
+// `Promise.resolve().then(() => )` — invalid JS syntax.
+let content = await Bun.file(tempJsFile).text()
 const badPattern = /Promise\.resolve\(\)\.then\(\(\)\s*=>\s*\)/g
 const fixCount = (content.match(badPattern) ?? []).length
 if (fixCount > 0) {
-  content = content.replace(badPattern, 'Promise.resolve()')
+  await Bun.write(tempJsFile, content.replace(badPattern, 'Promise.resolve()'))
   console.log(`Fixed ${fixCount} Bun DCE syntax artifact(s)`)
 }
-const header = [
-  '#!/usr/bin/env node',
-  `// (c) Anthropic PBC. All rights reserved.`,
-  ``,
-  `// Version: ${VERSION}`,
-  ``,
-].join('\n')
-await Bun.write(outFile, header + content)
-await Bun.$`chmod +x ${outFile}`.quiet()
+
+if (result.logs.length > 0) {
+  console.log(`Bundle warnings: ${result.logs.length}`)
+}
+
+// Phase 2: Compile the bundled JS into a standalone binary
+console.log('Compiling to standalone binary...')
+const compileResult = await Bun.$`bun build --compile --outfile ${outFile} ${tempJsFile}`.quiet()
+if (compileResult.exitCode !== 0) {
+  console.error('\nCompile phase failed:')
+  console.error(compileResult.stderr.toString())
+  process.exit(1)
+}
+
+// Remove intermediate bundle file
+await Bun.$`rm -f ${tempJsFile}`.quiet()
 
 const size = (await Bun.file(outFile).arrayBuffer()).byteLength
 console.log(`\nBuild complete: ${outFile}`)
 console.log(`Size: ${(size / 1024 / 1024).toFixed(1)} MB`)
-if (result.logs.length > 0) {
-  console.log(`Warnings: ${result.logs.length}`)
-}
+console.log('Binary can run directly without Node.js: ./package/alien-code')

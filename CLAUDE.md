@@ -44,11 +44,11 @@ VERSION=2.1.88 bun run build.ts --dev
 
 ### 运行
 ```bash
-# 验证构建
-node package/alien-code.js --version
+# 验证构建（无需 Node.js，直接运行二进制）
+./package/alien-code --version
 
 # 使用（需要 API key）
-ANTHROPIC_API_KEY=sk-ant-xxx node package/alien-code.js --print "你好"
+ANTHROPIC_API_KEY=sk-ant-xxx ./package/alien-code --print "你好"
 ```
 
 ### 类型检查
