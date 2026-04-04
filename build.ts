@@ -170,13 +170,13 @@ const result = await Bun.build({
     'MACRO.PACKAGE_URL': JSON.stringify('@anthropic-ai/claude-code'),
     'MACRO.NATIVE_PACKAGE_URL': JSON.stringify('@anthropic-ai/claude-code'),
     'MACRO.ISSUES_EXPLAINER': JSON.stringify(
-      'report the issue at https://github.com/anthropics/claude-code/issues',
+      'report the issue at https://github.com/0xnofoo/alien-code/issues',
     ),
     'MACRO.FEEDBACK_CHANNEL': JSON.stringify(
-      'https://github.com/anthropics/claude-code/issues',
+      'https://github.com/0xnofoo/alien-code/issues',
     ),
     'MACRO.VERSION_CHANGELOG': JSON.stringify(
-      `https://github.com/anthropics/claude-code/releases/tag/v${VERSION}`,
+      `https://github.com/0xnofoo/alien-code/releases/tag/v${VERSION}`,
     ),
     // Feature flags as boolean constants (enables DCE of if(feature('X')) branches)
     ...Object.fromEntries(
