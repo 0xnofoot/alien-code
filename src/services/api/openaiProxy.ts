@@ -71,16 +71,29 @@ export function createOpenAIProxyFetch(): ClientOptions['fetch'] {
 
     if (!openaiResponse.ok) {
       const errorText = await openaiResponse.text().catch(() => 'unknown error')
+      const status = openaiResponse.status
+      let errorType = 'api_error'
+      if (status === 429) {
+        errorType = 'rate_limit_error'
+      } else if (status === 401 || status === 403) {
+        errorType = 'authentication_error'
+      } else if (status === 400) {
+        errorType = 'invalid_request_error'
+      } else if (status === 404) {
+        errorType = 'not_found_error'
+      } else if (status >= 500) {
+        errorType = 'overloaded_error'
+      }
       return new Response(
         JSON.stringify({
           type: 'error',
           error: {
-            type: 'api_error',
-            message: `OpenAI API error ${openaiResponse.status}: ${errorText}`,
+            type: errorType,
+            message: `OpenAI API error ${status}: ${errorText}`,
           },
         }),
         {
-          status: openaiResponse.status,
+          status,
           headers: {
             'Content-Type': 'application/json',
             'request-id': `openai-proxy-${Date.now()}`,
@@ -250,20 +263,37 @@ function convertAnthropicToOpenAI(
         case 'tool_result': {
           // Tool results become separate messages with role "tool"
           const resultContent = block.content
-          let text = ''
           if (typeof resultContent === 'string') {
-            text = resultContent
+            messages.push({
+              role: 'tool',
+              tool_call_id: block.tool_use_id as string,
+              content: resultContent || (block.is_error ? 'Error' : 'Success'),
+            })
           } else if (Array.isArray(resultContent)) {
-            text = (resultContent as Record<string, unknown>[])
-              .filter((b) => b.type === 'text')
-              .map((b) => b.text as string)
-              .join('')
+            const parts: OpenAIContentPart[] = []
+            for (const b of resultContent as Record<string, unknown>[]) {
+              if (b.type === 'text') {
+                parts.push({ type: 'text', text: b.text as string })
+              } else if (b.type === 'image') {
+                const src = b.source as Record<string, string>
+                parts.push({
+                  type: 'image_url',
+                  image_url: { url: `data:${src.media_type};base64,${src.data}` },
+                })
+              }
+            }
+            messages.push({
+              role: 'tool',
+              tool_call_id: block.tool_use_id as string,
+              content: parts.length > 0 ? parts : (block.is_error ? 'Error' : 'Success'),
+            })
+          } else {
+            messages.push({
+              role: 'tool',
+              tool_call_id: block.tool_use_id as string,
+              content: block.is_error ? 'Error' : 'Success',
+            })
           }
-          messages.push({
-            role: 'tool',
-            tool_call_id: block.tool_use_id as string,
-            content: text || (block.is_error ? 'Error' : 'Success'),
-          })
           continue
         }
 
@@ -358,6 +388,8 @@ function convertOpenAIStreamToAnthropicSSE(
   // State
   let hasStarted = false
   let hasTextBlockStarted = false
+  let hasThinkingBlockStarted = false
+  let thinkingBlockIndex = -1
   let isClosed = false
   let contentBlockIndex = 0
   let outputTokens = 0
@@ -435,6 +467,18 @@ function convertOpenAIStreamToAnthropicSSE(
     contentBlockIndex++
   }
 
+  function closeThinkingBlock(controller: ReadableStreamDefaultController) {
+    if (!hasThinkingBlockStarted) return
+    hasThinkingBlockStarted = false
+    safeEnqueue(
+      controller,
+      sseEvent('content_block_stop', {
+        type: 'content_block_stop',
+        index: thinkingBlockIndex,
+      }),
+    )
+  }
+
   return new ReadableStream({
     start: async (controller) => {
       const reader = openaiBody.getReader()
@@ -485,9 +529,35 @@ function convertOpenAIStreamToAnthropicSSE(
             // Ensure message_start is emitted
             emitMessageStart(controller)
 
+            // Reasoning/thinking content (DeepSeek R1 / o1 style)
+            const reasoningContent = delta.reasoning_content as string | undefined
+            if (reasoningContent) {
+              if (!hasThinkingBlockStarted) {
+                hasThinkingBlockStarted = true
+                thinkingBlockIndex = contentBlockIndex++
+                safeEnqueue(
+                  controller,
+                  sseEvent('content_block_start', {
+                    type: 'content_block_start',
+                    index: thinkingBlockIndex,
+                    content_block: { type: 'thinking', thinking: '' },
+                  }),
+                )
+              }
+              safeEnqueue(
+                controller,
+                sseEvent('content_block_delta', {
+                  type: 'content_block_delta',
+                  index: thinkingBlockIndex,
+                  delta: { type: 'thinking_delta', thinking: reasoningContent },
+                }),
+              )
+            }
+
             // Text content
             const textContent = delta.content as string | undefined
             if (textContent) {
+              closeThinkingBlock(controller)
               emitTextBlockStart(controller)
               safeEnqueue(
                 controller,
@@ -600,6 +670,9 @@ function convertOpenAIStreamToAnthropicSSE(
 
         // Ensure message_start was sent (empty response edge case)
         emitMessageStart(controller)
+
+        // Close open thinking block
+        closeThinkingBlock(controller)
 
         // Close open text block
         closeTextBlock(controller)
